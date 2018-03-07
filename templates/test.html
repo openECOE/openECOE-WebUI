@@ -1,0 +1,42 @@
+{% extends "mainTest.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <table class="table table-striped">
+        <tbody>
+        {% for q in question %}
+          <tr>
+            <td class="small">{{q.descripcion|e}}</td>
+
+            {% for o in q.opciones  %}
+                {% if q.tipo_opcion == 1 %}
+                    <td>
+                        <form>
+                            <div class="radio">
+                              <label><input type="radio" name="optradio">{{o.descripcion}}</label>
+                            </div>
+                        </form>
+                    </td>
+              {% elif q.tipo_opcion == 2 %}
+              <td>
+                    <form>
+                        <div class="form-check">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" value="">{{o.descripcion}}
+                          </label>
+                        </div>
+                    </form>
+              </td>
+
+              {% endif %}
+          {% endfor %}
+
+
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+{% endblock %}
