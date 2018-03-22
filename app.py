@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request
+from config import Config
 
 import json
 
 app = Flask(__name__)
-
+app.config.from_object(Config)
 
 @app.route('/')
 def index():
@@ -51,7 +52,3 @@ def test(id_station):
 
 #@app.route('/nextStudent', methods=['POST'])
 #def nextStudent():
-
-
-if __name__ == "__main__":
-    app.run()

@@ -1,0 +1,6 @@
+venv_path: "/home/vagrant/venv"
+requirements_path: "/vagrant/requirements.txt"
+
+environment_config:
+  FLASK_APP: app.py
+  FLASK_DEBUG: 1
