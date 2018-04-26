@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 {#{% block custom_css %}#}
 {#    <link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">#}
 {#{% endblock %}#}
@@ -8,7 +9,7 @@
                 <div class="col-4"></div>
                 <div class="col-4 container bg-white text-center rounded" style="padding: 10px">
                   <h2>Bienvenido</h2>
-{#                      {{ wtf.quick_form(form) }}#}
+                      {{ wtf.quick_form(form) }}
                 </div>
                 <div class="col-4"></div>
             </div>

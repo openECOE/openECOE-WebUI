@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from potion_client import Client
 from ui_evaluation import app
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -22,6 +23,7 @@ def index():
 @app.route('/evaluacion')
 def evaluacion():
     return render_template('evaluacion.html')
+
 
 @app.route('/evaluacion/<int: id>', methods=['GET'])
 def get_evaluacion(id):
