@@ -1,1 +1,8 @@
 Flask
+flask-wtf
+wtforms
+werkzeug
+flask-bootstrap
+flask-login
+flask-potion
+pip==9.0.2
