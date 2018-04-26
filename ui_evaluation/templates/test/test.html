@@ -1,4 +1,4 @@
-{% extends "mainTest.html" %}
+{% extends "test/mainTest.html" %}
 
 {% block content %}
 
@@ -10,7 +10,7 @@
             <td class="small">{{q.descripcion|e}}</td>
 
             {% for o in q.opciones  %}
-                {% if q.tipo_opcion == 1 %}
+                {% if q.tipo_opcion  == 1 %}
                     <td>
                         <form>
                             <div class="radio">
