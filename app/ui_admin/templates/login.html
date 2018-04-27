@@ -4,16 +4,15 @@
 {#    <link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">#}
 {#{% endblock %}#}
 {% block content %}
-<body>
+    <body>
         <div class="row">
-                <div class="col-4"></div>
-                <div class="col-4 container bg-white text-center rounded" style="padding: 10px">
-                  <h2>Bienvenido</h2>
-                      {{ wtf.quick_form(form) }}
-                </div>
-                <div class="col-4"></div>
+            <div class="col-4 container bg-white text-center rounded" style="padding: 10px">
+                <h2>Bienvenido</h2>
+                {{ wtf.quick_form(form) }}
             </div>
-</body>
+            <div class="col-4"></div>
+        </div>
+    </body>
 {% endblock %}
 
 
