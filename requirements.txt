@@ -17,4 +17,6 @@ visitor==0.1.3
 Werkzeug==0.14.1
 WTForms==2.1
 potion-client
+flask_babel
 pip==9.0.2
+python-dotenv
