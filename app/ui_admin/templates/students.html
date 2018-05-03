@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+    {% include "sidebar.html" with context %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-3">
+                <ul class="nav nav-pills nav-stacked" role="tablist">
+                    {% for student in students %}
+                        <li><a href="#">{{ student.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+{% endblock %}

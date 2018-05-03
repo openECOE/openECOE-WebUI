@@ -7,3 +7,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
+
+class AddAreaForm(FlaskForm):
+    name = StringField('Nueva Area', validators=[DataRequired()])
+    submit = SubmitField('Añadir')
