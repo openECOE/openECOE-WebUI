@@ -1,9 +1,11 @@
-<ul class="nav nav-pills nav-stacked" role="tablist">
-    <li><a href="{{ url_for('.infoEcoe', id_ecoe=id_ecoe) }}">Información</a></li>
-    <li><a href="{{ url_for('.areas', id_ecoe=id_ecoe) }}">Areas</a></li>
-    <li><a href="{{ url_for('.stations', id_ecoe=id_ecoe) }}">Estaciones</a></li>
-    <li><a href="{{ url_for('.chronometers', id_ecoe=id_ecoe) }}">Cronómetros</a></li>
-    <li><a href="{{ url_for('.students', id_ecoe=id_ecoe) }}">Alumnos</a></li>
-    <li><a href="{{ url_for('.groups', id_ecoe=id_ecoe) }}">Grupos</a></li>
-{#  <li><a href="{{ url_for('.statistics') }}">Informes y estadísticas</a></li>#}
-</ul>
+<div class="col-xs-3">
+    <ul class="nav nav-pills nav-stacked" role="tablist">
+        <li><a href="{{ url_for('.infoEcoe', id_ecoe=id_ecoe) }}">Información</a></li>
+        <li><a href="{{ url_for('.areas', id_ecoe=id_ecoe) }}">Areas</a></li>
+        <li><a href="{{ url_for('.stations', id_ecoe=id_ecoe) }}">Estaciones</a></li>
+        <li><a href="{{ url_for('.chronometers', id_ecoe=id_ecoe) }}">Cronómetros</a></li>
+        <li><a href="{{ url_for('.students', id_ecoe=id_ecoe) }}">Alumnos</a></li>
+        <li><a href="{{ url_for('.groups', id_ecoe=id_ecoe) }}">Grupos</a></li>
+    {#  <li><a href="{{ url_for('.statistics') }}">Informes y estadísticas</a></li>#}
+    </ul>
+</div>

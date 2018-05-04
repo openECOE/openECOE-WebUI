@@ -5,12 +5,22 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-3">
-                <ul class="nav nav-pills nav-stacked" role="tablist">
-                    {% for student in students %}
-                        <li><a href="#">{{ student.name }}</a></li>
-                    {% endfor %}
-                </ul>
+            <div class="col-xs-4">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h2>Alumnos</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for student in students %}
+                                <li class="list-group-item">{{ student.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                {{ wtf.quick_form(form) }}
             </div>
         </div>
     </div>

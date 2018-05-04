@@ -2,19 +2,15 @@ import os
 from flask import Flask
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
-import config
+from config import Config
 
 login_manager = LoginManager()
 bootstrap = Bootstrap()
 
-def create_app():
-    app_settings = os.getenv(
-        'APP_SETTINGS',
-        'config.DevelopmentConfig'
-    )
 
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(config)
+    app.config.from_object(config_class)
 
     login_manager.init_app(app)
     bootstrap.init_app(app)
