@@ -22,4 +22,7 @@ def create_app():
     from app.ui_admin import bp as ui_admin_bp
     app.register_blueprint(ui_admin_bp, url_prefix='/admin')
 
+    from app.ui_evaluation import bp as ui_eval_bp
+    app.register_blueprint(ui_eval_bp, url_prefix = '/eval')
+
     return app
