@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-3">
+                <ul class="nav nav-pills nav-stacked" role="tablist">
+                    {% for ecoe in ecoes %}
+                        <li><a href="{{ url_for('.infoEcoe', id_ecoe=ecoe.id) }}">{{ ecoe.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-xs-9">
+                <button><a href="{{ url_for('.infoEcoe') }}">Crear nueva ECOE</a></button>
+            </div>
+        </div>
+    </div>
+
+</body>
+{% endblock %}
