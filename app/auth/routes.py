@@ -7,7 +7,9 @@ from app.auth.forms import LoginForm
 from app import Client, login_manager, current_app
 import requests
 from requests.auth import HTTPBasicAuth
+from requests import exceptions
 from potion_client.auth import HTTPBearerAuth
+from api_client import create_api
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -43,12 +45,12 @@ def logout():
 @login_manager.user_loader
 def load_user(token):
     logged_user = UserMixin()
+
     try:
-        logged_user.api_client = Client(current_app.config['API_ROUTE'], auth=HTTPBearerAuth(token))
+        logged_user.api_client = create_api(token)
+        user = logged_user.api_client.User.read_me()
     except:
         return None
-
-    user = logged_user.api_client.User.read_me()
 
     logged_user.token = token
     logged_user.id = token
