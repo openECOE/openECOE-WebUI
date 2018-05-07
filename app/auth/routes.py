@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, current_app, g
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user, UserMixin
+from flask_login import login_user, logout_user, current_user, UserMixin, AnonymousUserMixin
 from flask_babel import _
 from app.auth import bp
 from app.auth.forms import LoginForm
@@ -16,7 +16,7 @@ def login():
         return redirect(url_for('ui_admin.home'))
     form = LoginForm()
     if form.validate_on_submit():
-        response = requests.post("http://10.1.56.84:5000/auth/tokens", auth=HTTPBasicAuth(form.username.data, form.password.data))
+        response = requests.post(current_app.config["API_AUTH_TOKEN"], auth=HTTPBasicAuth(form.username.data, form.password.data))
 
         if response.status_code == requests.codes.ok:
             json = response.json()
@@ -31,19 +31,22 @@ def login():
                 next_page = url_for('ui_admin.home')
             return redirect(next_page)
 
-    return render_template('auth/login.html', title=_('Sign In'), form=form)
+    return render_template('auth_login.html', title=_('Sign In'), form=form)
 
 
 @bp.route('/logout')
 def logout():
-    pass
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 
 @login_manager.user_loader
 def load_user(token):
     logged_user = UserMixin()
-
-    logged_user.api_client = Client(current_app.config['API_ROUTE'], auth=HTTPBearerAuth(token))
+    try:
+        logged_user.api_client = Client(current_app.config['API_ROUTE'], auth=HTTPBearerAuth(token))
+    except:
+        return None
 
     user = logged_user.api_client.User.read_me()
 
@@ -52,6 +55,5 @@ def load_user(token):
     logged_user.username = user.email
     logged_user.name = user.name
     logged_user.surname = user.surname
-
 
     return logged_user
