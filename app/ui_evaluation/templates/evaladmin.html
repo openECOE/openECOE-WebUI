@@ -17,22 +17,21 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Day</th>
                                         <th scope="col">Turno</th>
-                                        <th scope="col">Rueda</th>
+{#                                        {% for round in planner.rounds %}#}
+{#                                            <th scope="col">Ronda {{ round.round_code }}</th>#}
+{#                                        {% endfor %}#}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for day in days %}
-                                        {% for shift in day.shifts %}
+                                    {% for shift in planner %}
+                                        <tr>
+                                            <td>{{ shift.shift }}</td>
                                             {% for round in shift.rounds %}
-                                                <tr>
-                                                    <td>{{ day.day }}</td>
-                                                    <td>{{ shift.shift }}</td>
-                                                    <td>{{ round.round }}</td>
-                                                </tr>
+                                                <td>{{ round }}</td>
                                             {% endfor %}
-                                         {% endfor %}
+                                            <td>  <button><a href="{{ url_for('.evaluacion') }}">Ir a evaluacion</a></button> </td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -45,7 +44,5 @@
     {#                        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">{{ station.name }}</button>#}
     {#                        <li><a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}">{{ station.name }}</a></li>#}
     </div>
-
-
 </body>
 {% endblock %}
