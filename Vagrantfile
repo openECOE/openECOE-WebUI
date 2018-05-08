@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/trusty64"
-
+  config.vm.network "public_network"
   config.vm.network "forwarded_port", guest: 5080, host: 5080
 
   config.vm.provision "ansible_local" do |ansible|
