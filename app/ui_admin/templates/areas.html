@@ -14,11 +14,11 @@
                         <ul class="list-group list-group-flush">
                             {% for area in areas %}
                                 <li class="list-group-item">
-                                    <button type="button" class="btn btn-danger btn-sm">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteArea()">
                                         <span class="glyphicon glyphicon-remove"></span>
-                                    </button> {{ area.name }}
+                                    </button> <span contenteditable="true" id="area{{ area.id }}">{{ area.name }}</span>
 
-                                    <button type="button" class="btn btn-default btn-sm" style="float: right">
+                                    <button type="button" class="btn btn-default btn-sm" style="float: right" onclick="editArea({{ area.id }})">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button>
                                 </li>
@@ -28,10 +28,9 @@
                 </div>
             </div>
             <div class="col-xs-4">
-                {{ wtf.quick_form(form) }}
+                {{ wtf.quick_form(formAdd) }}
             </div>
         </div>
     </div>
-
 </body>
 {% endblock %}

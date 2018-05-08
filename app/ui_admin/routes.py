@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, current_app
 from app.ui_admin import bp
-from app.ui_admin.forms import LoginForm, AddAreaForm, AddStudentForm
+from app.ui_admin.forms import LoginForm, AddAreaForm, EditAreaForm, AddStudentForm
 from potion_client import Client
 from potion_client.auth import HTTPBearerAuth
 from potion_client.exceptions import ItemNotFound
@@ -35,10 +35,11 @@ def infoEcoe(id_ecoe):
 @bp.route('/ecoe/<int:id_ecoe>/areas', methods=['GET', 'POST'])
 def areas(id_ecoe):
     ecoe = client.Ecoe(id_ecoe)
-    form = AddAreaForm(request.form)
-    if request.method == 'POST' and form.validate():
+    formAdd = AddAreaForm(request.form)
+    formEdit = EditAreaForm(request.form)
+    if request.method == 'POST' and formAdd.validate():
         new_area = client.Area()
-        new_area.name = form.name.data
+        new_area.name = formAdd.name.data
         new_area.ecoe = ecoe
 
         try:
@@ -47,8 +48,32 @@ def areas(id_ecoe):
         except:
             flash('Nombre de area duplicado')
 
+
+    # if request.method == 'POST' and formEdit.validate():
+    #     try:
+    #         area(id_area)._update({'name': formEdit.data.name})
+    #     except:
+    #         flash('Nombre de area duplicado')
+
     areas = client.Area.instances(where={"ecoe": ecoe})
-    return render_template('areas.html', areas=areas, id_ecoe=id_ecoe, form=form)
+    return render_template('areas.html', areas=areas, id_ecoe=id_ecoe, formAdd=formAdd)
+
+# https://pythonhosted.org/Flask-Sijax/
+
+@bp.route('/area/<int:id_area>/delete', methods=['DELETE'])
+def delete_area(id_area):
+    area = client.Area(id_area)
+    area.destroy()
+
+@bp.route('/area/<int:id_area>/edit', methods=['POST'])
+def edit_area(id_area):
+    area = client.Area(id_area)
+    form = EditAreaForm(request.form)
+    if request.method == 'POST' and form.validate():
+        try:
+            area(id_area)._update({'name': form.data.name})
+        except:
+            flash('Nombre de area duplicado')
 
 @bp.route('/ecoe/<int:id_ecoe>/stations', methods=['GET', 'POST'])
 def stations(id_ecoe):

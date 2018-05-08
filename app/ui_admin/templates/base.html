@@ -33,3 +33,41 @@
       </div>
     </nav>
 {% endblock%}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        $(function() {
+
+        });
+        function deleteArea(id_area) {
+            $.ajax({
+                url: "{{ url_for('.delete_area', id_area=id_area) }}",
+                type: 'DELETE',
+                success: function(result) {
+                    console.log(result);
+                }
+            });
+        }
+
+        function changeSpanToInput(id_span) {
+            var $input = $("<input>", {
+                val: $(this).text(),
+                type: "text"
+            });
+
+
+        }
+
+        function editArea(id_area) {
+            $.ajax({
+                url: '/admin/area/' + id_area + '/edit',
+                type: 'PATCH',
+                success: function(result) {
+                    console.log(result);
+                }
+            });
+        }
+    </script>
+{% endblock %}
