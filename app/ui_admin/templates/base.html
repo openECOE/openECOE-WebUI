@@ -38,34 +38,32 @@
     {{ super() }}
 
     <script>
-        $(function() {
+        function deleteArea(ecoe, area) {
+            var delete_url = "{{ url_for('.areas', id_ecoe='.ecoe.', id_area='.area.') }}"
+                .replace('.ecoe.', ecoe)
+                .replace('.area.', area);
 
-        });
-        function deleteArea(id_area) {
             $.ajax({
-                url: "{{ url_for('.delete_area', id_area=id_area) }}",
+                url: delete_url,
                 type: 'DELETE',
-                success: function(result) {
-                    console.log(result);
+                success: function() {
+                    $('#item'+area).remove();
                 }
             });
         }
 
-        function changeSpanToInput(id_span) {
-            var $input = $("<input>", {
-                val: $(this).text(),
-                type: "text"
-            });
+        function editArea(ecoe, area) {
+            var edit_url = "{{ url_for('.areas', id_ecoe='.ecoe.', id_area='.area.', name='.name.') }}"
+                .replace('.ecoe.', ecoe)
+                .replace('.area.', area)
+                .replace('.name.', $('#name_area'+area).val());
 
-
-        }
-
-        function editArea(id_area) {
+            console.log(edit_url);
             $.ajax({
-                url: '/admin/area/' + id_area + '/edit',
+                url: edit_url,
                 type: 'PATCH',
                 success: function(result) {
-                    console.log(result);
+                    console.log();
                 }
             });
         }

@@ -9,7 +9,6 @@ from flask import request
 @bp.route('/index', methods=['GET'])
 @login_required
 def home():
-
     ecoes = current_user.api_client.Ecoe.instances()
     return render_template('index.html', ecoes=ecoes)
 
@@ -30,12 +29,12 @@ def infoEcoe(id_ecoe):
 
     return render_template('info-ecoe.html', ecoe=ecoe, id_ecoe=id_ecoe, areas_length=areas._total_count, stations=stations, students_length=students._total_count)
 
-@bp.route('/ecoe/<int:id_ecoe>/areas', methods=['GET', 'POST'])
+@bp.route('/ecoe/<id_ecoe>/area/', methods=['GET', 'POST', 'DELETE', 'PATCH'])
 @login_required
 def areas(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
+
     formAdd = AddAreaForm(request.form)
-    formEdit = EditAreaForm(request.form)
     if request.method == 'POST' and formAdd.validate():
         new_area = current_user.api_client.Area()
         new_area.name = formAdd.name.data
@@ -47,34 +46,36 @@ def areas(id_ecoe):
         except:
             flash('Nombre de area duplicado')
 
+    if request.method == 'DELETE':
+        id_area = request.args.get('id_area')
 
-    # if request.method == 'POST' and formEdit.validate():
-    #     try:
-    #         area(id_area)._update({'name': formEdit.data.name})
-    #     except:
-    #         flash('Nombre de area duplicado')
+        if id_area:
+            area = current_user.api_client.Area(id_area)
+
+            try:
+                area.destroy()
+            except:
+                flash('Error al borrar')
+                print('Error')
+
+    if request.method == 'PATCH':
+        id_area = request.args.get('id_area') or request.args.get('amp;id_area')
+        new_name = request.args.get('name') or request.args.get('amp;name')
+
+        if id_area and new_name:
+            area = current_user.api_client.Area(id_area)
+
+            try:
+                area.update(name=new_name)
+            except:
+                flash('Error al modificar')
+                print('Error')
 
     areas = current_user.api_client.Area.instances(where={"ecoe": ecoe})
     return render_template('areas.html', areas=areas, id_ecoe=id_ecoe, formAdd=formAdd)
 
-# https://pythonhosted.org/Flask-Sijax/
-
-@bp.route('/area/<int:id_area>/delete', methods=['DELETE'])
-def delete_area(id_area):
-    area = client.Area(id_area)
-    area.destroy()
-
-@bp.route('/area/<int:id_area>/edit', methods=['POST'])
-def edit_area(id_area):
-    area = client.Area(id_area)
-    form = EditAreaForm(request.form)
-    if request.method == 'POST' and form.validate():
-        try:
-            area(id_area)._update({'name': form.data.name})
-        except:
-            flash('Nombre de area duplicado')
-
 @bp.route('/ecoe/<int:id_ecoe>/stations', methods=['GET', 'POST'])
+@login_required
 def stations(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
@@ -82,6 +83,7 @@ def stations(id_ecoe):
 
 # TODO: falta relacionar chronos con ecoes
 @bp.route('/ecoe/<int:id_ecoe>/chronometers', methods=['GET', 'POST'])
+@login_required
 def chronometers(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     # form = AddChronometerForm(request.form)
@@ -100,6 +102,7 @@ def chronometers(id_ecoe):
     return render_template('chronometers.html', chronometers=[{'name': 'Chrono 1'},{'name': 'Chrono 2'},{'name': 'Chrono 3'}], id_ecoe=id_ecoe)
 
 @bp.route('/ecoe/<int:id_ecoe>/students', methods=['GET', 'POST'])
+@login_required
 def students(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
 
@@ -121,12 +124,14 @@ def students(id_ecoe):
 
 # TODO: obtener grupos a partir de la Ecoe
 @bp.route('/ecoe/<int:id_ecoe>/groups', methods=['GET', 'POST'])
+@login_required
 def groups(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     groups = current_user.api_client.Group.instances(where={"ecoe": ecoe})
     return render_template('groups.html', groups=groups, id_ecoe=id_ecoe)
 
 # @bp.route('/statistics', methods=['GET', 'POST'])
+# @login_required
 # def statistics(id_ecoe):
 #     ecoe = current_user.api_client.Ecoe(id_ecoe)
 #     student = current_user.api_client.Student.instances(where={"ecoe": ecoe})
