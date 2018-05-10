@@ -12,9 +12,10 @@ class AddAreaForm(FlaskForm):
     name = StringField('Nueva Area', validators=[DataRequired()])
     submit = SubmitField('Añadir')
 
-class EditAreaForm(FlaskForm):
-    name = StringField('Nuevo nombre', validators=[DataRequired()])
-    submit = SubmitField('Aceptar')
+class AddStationForm(FlaskForm):
+    name = StringField('Nueva Estación', validators=[DataRequired()])
+    submit = SubmitField('Añadir')
+
 
 # class AddChronometerForm(FlaskForm):
 #     username = StringField('Username', validators=[DataRequired()])

@@ -67,5 +67,27 @@
                 }
             });
         }
+
+        function showQblocks(id_ecoe, id_station) {
+            var qblocks_url = "{{ url_for('.get_qblocks', id_ecoe='.ecoe.', id_station='.station.') }}"
+                .replace('.ecoe.', id_ecoe)
+                .replace('.station.', id_station);
+
+            console.log(qblocks_url);
+            $.get(qblocks_url, function (data) {
+                console.log(data);
+                $('#stationGroup'+id_station).append(data);
+            });
+        }
+
+        function showOptions(id_question) {
+            var options_url = "{{ url_for('.get_options', id_question='.question.') }}"
+                .replace('.question.', id_question);
+
+            $.get(options_url, function (data) {
+                console.log(data);
+                $('#questionGroup'+id_question).append(data);
+            });
+        }
     </script>
 {% endblock %}

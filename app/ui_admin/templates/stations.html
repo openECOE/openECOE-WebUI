@@ -5,12 +5,40 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-3">
-                <ul class="nav nav-pills nav-stacked" role="tablist">
-                    {% for station in stations %}
-                        <li><a href="#">{{ station.name }}</a></li>
-                    {% endfor %}
-                </ul>
+            <div class="col-xs-4">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h2>Stations</h2>
+                    </div>
+                    <div class="card-body">
+                        {% for station in stations %}
+                            <div id="item{{ station.id }}" class="card">
+                                <div class="card card-header">
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteArea({{ id_ecoe }}, {{ station.id }})">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </button>
+                                        </span>
+
+                                        <input type="text" id="name_station{{ station.id }}" class="form-control" value="{{ station.name }}" required />
+
+                                        <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-default btn-sm" onclick="showQblocks({{ id_ecoe }}, {{ station.id }})">
+                                                <span class="glyphicon glyphicon-pencil"></span>
+                                            </button>
+                                        </span>
+                                    </div>
+                                    {% include "station-qblocks.html" %}
+                                    <div id="stationGroup{{ station.id }}"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                {{ wtf.quick_form(formAdd) }}
             </div>
         </div>
     </div>

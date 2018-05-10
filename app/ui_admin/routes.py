@@ -1,19 +1,20 @@
-from flask import render_template, flash, redirect, url_for, current_app
+from flask import render_template, flash, redirect, url_for, current_app, make_response, jsonify, json
 from flask_login import login_required, current_user
 from app.ui_admin import bp
-from app.ui_admin.forms import LoginForm, AddAreaForm, EditAreaForm, AddStudentForm
+from app.ui_admin.forms import LoginForm, AddAreaForm, AddStationForm, AddStudentForm
 from potion_client.exceptions import ItemNotFound
 from flask import request
 
 @bp.route('/', methods=['GET'])
-@bp.route('/index', methods=['GET'])
+@bp.route('/index/', methods=['GET'])
 @login_required
 def home():
     ecoes = current_user.api_client.Ecoe.instances()
     return render_template('index.html', ecoes=ecoes)
 
 @bp.route('/ecoe/', methods=['GET'])
-@bp.route('/ecoe/<int:id_ecoe>/info', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/info/', methods=['GET'])
 @login_required
 def infoEcoe(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -74,15 +75,50 @@ def areas(id_ecoe):
     areas = current_user.api_client.Area.instances(where={"ecoe": ecoe})
     return render_template('areas.html', areas=areas, id_ecoe=id_ecoe, formAdd=formAdd)
 
-@bp.route('/ecoe/<int:id_ecoe>/stations', methods=['GET', 'POST'])
+@bp.route('/ecoe/<int:id_ecoe>/stations/', methods=['GET', 'POST'])
 @login_required
 def stations(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
-    station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
-    return render_template('stations.html', stations=station, id_ecoe=id_ecoe)
+
+    formAdd = AddStationForm(request.form)
+    if request.method == 'POST' and formAdd.validate():
+        new_station = current_user.api_client.Station()
+        new_station.name = formAdd.name.data
+        new_station.ecoe = ecoe
+
+        try:
+            new_station.save()
+            flash('{} created'.format(new_station.name))
+        except:
+            flash('Nombre de estación duplicado')
+
+    stations = current_user.api_client.Station.instances(where={"ecoe": ecoe})
+    return render_template('stations.html', stations=stations, id_ecoe=id_ecoe, formAdd=formAdd)
+
+@bp.route('ecoe/<id_ecoe>/station/<id_station>/qblocks', methods=['GET'])
+@login_required
+def get_qblocks(id_ecoe, id_station):
+    ecoe = current_user.api_client.Ecoe(id_ecoe)
+    areas = current_user.api_client.Area.instances(where={"ecoe": ecoe})
+    station = current_user.api_client.Station(id_station)
+
+    qblocks = station.qblocks()
+    qblocks_array = []
+    for qblock in qblocks:
+        qblocks_array.append({'qblock': qblock, 'questions': qblock.questions()})
+
+    return render_template('station-qblocks.html', station=station, qblocks=qblocks_array, areas=areas)
+
+@bp.route('question/<id_question>/', methods=['GET'])
+@login_required
+def get_options(id_question):
+    question = current_user.api_client.Question(id_question)
+    options = current_user.api_client.Option.instances(where={"question": question})
+
+    return render_template('question-options.html', options=options)
 
 # TODO: falta relacionar chronos con ecoes
-@bp.route('/ecoe/<int:id_ecoe>/chronometers', methods=['GET', 'POST'])
+@bp.route('/ecoe/<int:id_ecoe>/chronometers/', methods=['GET', 'POST'])
 @login_required
 def chronometers(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -101,7 +137,7 @@ def chronometers(id_ecoe):
     # chronometer = current_user.api_client.Chronometer.instances(where={"ecoe": ecoe})
     return render_template('chronometers.html', chronometers=[{'name': 'Chrono 1'},{'name': 'Chrono 2'},{'name': 'Chrono 3'}], id_ecoe=id_ecoe)
 
-@bp.route('/ecoe/<int:id_ecoe>/students', methods=['GET', 'POST'])
+@bp.route('/ecoe/<int:id_ecoe>/students/', methods=['GET', 'POST'])
 @login_required
 def students(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -123,7 +159,7 @@ def students(id_ecoe):
     return render_template('students.html', students=students, id_ecoe=id_ecoe, form=form)
 
 # TODO: obtener grupos a partir de la Ecoe
-@bp.route('/ecoe/<int:id_ecoe>/groups', methods=['GET', 'POST'])
+@bp.route('/ecoe/<int:id_ecoe>/groups/', methods=['GET', 'POST'])
 @login_required
 def groups(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -138,7 +174,7 @@ def groups(id_ecoe):
 #     return render_template('statistics.html', students=student, id_ecoe=id_ecoe)
 
 
-@bp.route('/eval', methods=['GET'])
+@bp.route('/eval/', methods=['GET'])
 @login_required
 def eval():
     # stations = current_user.api_client.Station.instances()
