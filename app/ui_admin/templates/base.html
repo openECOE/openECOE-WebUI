@@ -33,3 +33,72 @@
       </div>
     </nav>
 {% endblock%}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        function deleteItem(model, id_item) {
+            var delete_url = "{{ url_for('.delete_item', model='.model.', id_item='.id_item.') }}"
+                .replace('.model.', model)
+                .replace('.id_item.', id_item);
+
+            $.ajax({
+                url: delete_url,
+                type: 'DELETE',
+                success: function() {
+                    $('#item'+id_item).remove();
+                }
+            });
+        }
+
+        function editItem(model, id_item) {
+            var edit_url = "{{ url_for('.edit_item', model='.model.', id_item='.id_item.', name='.name.') }}"
+                .replace('.model.', model)
+                .replace('.id_item.', id_item)
+                .replace('.name.', $('#input_name'+id_item).val());
+
+            $.ajax({
+                url: edit_url,
+                type: 'PATCH',
+                success: function(result) {
+                    {#console.log(result);#}
+                }
+            });
+        }
+        
+        function showInputTag() {
+            
+        }
+
+        function showQblocks(id_ecoe, id_station) {
+            var qblocks_url = "{{ url_for('.get_qblocks', id_ecoe='.ecoe.', id_station='.station.') }}"
+                .replace('.ecoe.', id_ecoe)
+                .replace('.station.', id_station);
+
+            $.get(qblocks_url, function (data) {
+                var station_group = $('#stationGroup'+id_station);
+                //station_group.empty();
+                //if (station_group.is(':empty')) {
+                    station_group.append(data);
+                //}
+                station_group.collapse('toggle');
+            });
+        }
+
+        function showOptions(id_question) {
+            var options_url = "{{ url_for('.get_options', id_question='.question.') }}"
+                .replace('.question.', id_question);
+
+            $.get(options_url, function (data) {
+                var question_group = $('#questionGroup'+id_question);
+
+                //if (question_group.is(':empty')) {
+                    question_group.append(data);
+                //}
+
+                question_group.collapse('toggle');
+            });
+        }
+    </script>
+{% endblock %}

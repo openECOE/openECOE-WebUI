@@ -11,16 +11,25 @@
                         <h2>Areas</h2>
                     </div>
                     <div class="card-body">
-                        <ul class="list-group list-group-flush">
+                        <ul class="list-group list-group-flush" id="areas-list">
                             {% for area in areas %}
-                                <li class="list-group-item">
-                                    <button type="button" class="btn btn-danger btn-sm">
-                                        <span class="glyphicon glyphicon-remove"></span>
-                                    </button> {{ area.name }}
+                                <li id="item{{ area.id }}" class="list-group-item">
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteItem('area', {{ area.id }})">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </button>
+                                        </span>
 
-                                    <button type="button" class="btn btn-default btn-sm" style="float: right">
-                                        <span class="glyphicon glyphicon-pencil"></span>
-                                    </button>
+                                        <input type="text" id="input_name{{ area.id }}" class="form-control" value="{{ area.name }}" required />
+                                        {#<span id="area{{ area.id }}">{{ area.name }}</span>#}
+
+                                        <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-default btn-sm" onclick="editItem('area', {{ area.id }})">
+                                                <span class="glyphicon glyphicon-pencil"></span>
+                                            </button>
+                                        </span>
+                                    </div>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -28,10 +37,9 @@
                 </div>
             </div>
             <div class="col-xs-4">
-                {{ wtf.quick_form(form) }}
+                {{ wtf.quick_form(formAdd) }}
             </div>
         </div>
     </div>
-
 </body>
 {% endblock %}
