@@ -3,6 +3,53 @@
 
 {% block content %}
 <body>
+
+<div class="container">
+        <h2>{{ ecoe.name }}</h2>
+            <div id="accordion">
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse" href="#collapse">
+                                {{ station.name }}
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% for question in questions %}
+                              <div class="row">
+                                <div class="col-sm-9">
+                                 {{ question.question.description }}
+                                </div>
+                                <div class="col-sm-3">
+                                    {% for option in question.options %}
+                                        {% if question.question.type == 'CH' %}
+                                            <label>
+                                                <input type="checkbox" value="{{ option.value }}">
+                                                {{ option.label }}
+                                            </label>
+                                        {% endif %}
+                                        {% if question.question.type == 'RB' %}
+                                            <label>
+                                                <input type="radio" value="{{ option.value }}">
+                                                {{ option.label }}
+                                            </label>
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                </div>
+                              </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+            </div>
+
+    {#                        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">{{ station.name }}</button>#}
+    {#                        <li><a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}">{{ station.name }}</a></li>#}
+</div>
+
+
+
+
 <ul style="background: #1b1e21">
       <li>perico </li>
       <li>juanico</li>

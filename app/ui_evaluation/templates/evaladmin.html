@@ -30,7 +30,7 @@
                                             {% for round in shift.rounds %}
                                                 <td>{{ round }}</td>
                                             {% endfor %}
-                                            <td>  <button><a href="{{ url_for('.evaluacion') }}">Ir a evaluacion</a></button> </td>
+                                            <td>  <button><a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id)}}">Ir a evaluacion</a></button> </td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
