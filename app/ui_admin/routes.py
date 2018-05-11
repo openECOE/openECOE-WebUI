@@ -30,7 +30,7 @@ def infoEcoe(id_ecoe):
 
     return render_template('info-ecoe.html', ecoe=ecoe, id_ecoe=id_ecoe, areas_length=areas._total_count, stations=stations, students_length=students._total_count)
 
-@bp.route('/ecoe/<id_ecoe>/area/', methods=['GET', 'POST', 'DELETE', 'PATCH'])
+@bp.route('/ecoe/<id_ecoe>/area/', methods=['GET', 'POST', 'PATCH'])
 @login_required
 def areas(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -74,6 +74,26 @@ def areas(id_ecoe):
 
     areas = current_user.api_client.Area.instances(where={"ecoe": ecoe})
     return render_template('areas.html', areas=areas, id_ecoe=id_ecoe, formAdd=formAdd)
+
+@bp.route('/<model>/<id_item>/delete/', methods=['DELETE'])
+@login_required
+def delete_item(model, id_item):
+    if request.method == 'DELETE':
+        # id_item = request.args.get('id')
+        item = None
+
+        if model == 'area':
+            item = current_user.api_client.Area(id_item)
+        elif model == 'station':
+            item = current_user.api_client.Station(id_item)
+
+        try:
+            item.destroy()
+            return jsonify({'status': 204})
+        except:
+            flash('Error al borrar')
+            print('Error')
+            return jsonify({'status': 404})
 
 @bp.route('/ecoe/<int:id_ecoe>/stations/', methods=['GET', 'POST'])
 @login_required

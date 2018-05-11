@@ -25,5 +25,5 @@ class AddStationForm(FlaskForm):
 
 class AddStudentForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
-    dni = PasswordField('DNI', validators=[DataRequired()])
+    dni = StringField('DNI', validators=[DataRequired()])
     submit = SubmitField('Añadir')

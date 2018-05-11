@@ -1,14 +1,11 @@
-<div class="card-body">
-    {% for qblock in qblocks %}
-        <div class="list-group list-group-flush">
-            <div class="list-group-item list-group-item-info">{{ qblock.qblock.name }}</div>
-            {% for question in qblock.questions %}
-                <div class="card card-header">
-                    <button class="list-group-item list-group-item-action" onclick="showOptions({{ question.id }})">{{ question.description }}</button>
-                </div>
-                {% include "question-options.html" %}
-                <div id="questionGroup{{ question.id }}"></div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-</div>
+{% for qblock in qblocks %}
+    <div class="list-group list-group-flush">
+        <div class="list-group-item list-group-item-info">{{ qblock.qblock.name }}</div>
+        {% for question in qblock.questions %}
+            <div class="list-group list-group-flush">
+                <button class="list-group-item list-group-item-action" onclick="showOptions({{ question.id }})">{{ question.description }}</button>
+                <div id="questionGroup{{ question.id }}" class="list-group list-group-flush"></div>
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}

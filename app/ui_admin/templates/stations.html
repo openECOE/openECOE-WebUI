@@ -16,7 +16,7 @@
                                 <div class="card card-header">
                                     <div class="input-group">
                                         <span class="input-group-btn">
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteArea({{ id_ecoe }}, {{ station.id }})">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteItem('station', {{ station.id }})">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </button>
                                         </span>
@@ -29,7 +29,6 @@
                                             </button>
                                         </span>
                                     </div>
-                                    {% include "station-qblocks.html" %}
                                     <div id="stationGroup{{ station.id }}"></div>
                                 </div>
                             </div>

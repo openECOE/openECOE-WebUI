@@ -38,16 +38,16 @@
     {{ super() }}
 
     <script>
-        function deleteArea(ecoe, area) {
-            var delete_url = "{{ url_for('.areas', id_ecoe='.ecoe.', id_area='.area.') }}"
-                .replace('.ecoe.', ecoe)
-                .replace('.area.', area);
+        function deleteItem(model, id_item) {
+            var delete_url = "{{ url_for('.delete_item', model='.model.', id_item='.id_item.') }}"
+                .replace('.model.', model)
+                .replace('.id_item.', id_item);
 
             $.ajax({
                 url: delete_url,
                 type: 'DELETE',
                 success: function() {
-                    $('#item'+area).remove();
+                    $('#item'+id_item).remove();
                 }
             });
         }
@@ -73,7 +73,7 @@
                 .replace('.ecoe.', id_ecoe)
                 .replace('.station.', id_station);
 
-            console.log(qblocks_url);
+            {#console.log(qblocks_url);#}
             $.get(qblocks_url, function (data) {
                 console.log(data);
                 $('#stationGroup'+id_station).append(data);
