@@ -62,25 +62,13 @@
                 url: edit_url,
                 type: 'PATCH',
                 success: function(result) {
-                    console.log(result);
+                    {#console.log(result);#}
                 }
             });
         }
-
-        function editStation(ecoe, area) {
-            var edit_url = "{{ url_for('.areas', id_ecoe='.ecoe.', id_area='.area.', name='.name.') }}"
-                .replace('.ecoe.', ecoe)
-                .replace('.area.', area)
-                .replace('.name.', $('#name_area'+area).val());
-
-            console.log(edit_url);
-            $.ajax({
-                url: edit_url,
-                type: 'PATCH',
-                success: function(result) {
-                    console.log();
-                }
-            });
+        
+        function showInputTag() {
+            
         }
 
         function showQblocks(id_ecoe, id_station) {
@@ -88,10 +76,13 @@
                 .replace('.ecoe.', id_ecoe)
                 .replace('.station.', id_station);
 
-            {#console.log(qblocks_url);#}
             $.get(qblocks_url, function (data) {
-                console.log(data);
-                $('#stationGroup'+id_station).append(data);
+                var station_group = $('#stationGroup'+id_station);
+                //station_group.empty();
+                //if (station_group.is(':empty')) {
+                    station_group.append(data);
+                //}
+                station_group.collapse('toggle');
             });
         }
 
@@ -100,8 +91,13 @@
                 .replace('.question.', id_question);
 
             $.get(options_url, function (data) {
-                console.log(data);
-                $('#questionGroup'+id_question).append(data);
+                var question_group = $('#questionGroup'+id_question);
+
+                //if (question_group.is(':empty')) {
+                    question_group.append(data);
+                //}
+
+                question_group.collapse('toggle');
             });
         }
     </script>
