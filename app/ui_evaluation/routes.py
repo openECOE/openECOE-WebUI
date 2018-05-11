@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, current_app
+from flask import render_template, flash, redirect, url_for, current_app, jsonify
 from flask_login import login_required, current_user
 from app.ui_evaluation import bp
 from potion_client.exceptions import ItemNotFound
@@ -9,7 +9,7 @@ from flask import request
 @login_required
 def index():
     ecoe = current_user.api_client.Ecoe.instances()
-    return render_template('index.html', title='Home',  ecoes=ecoe)
+    return render_template('eval_index.html', title='Home',  ecoes=ecoe)
 
 
 @bp.route('/evaluacion', methods=['GET'])
@@ -49,6 +49,35 @@ def evaladmin(id_ecoe):
 
     return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array )
 
+@bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
+@login_required
+def send_answer(id_student, id_option):
+    if request.method == 'POST':
+        option = current_user.api_client.Option(id_option)
+        student = current_user.api_client.Student(id_student)
+
+        try:
+            student.add_answers(option)
+            return jsonify({'status': 204})
+        except:
+            flash('Error al borrar')
+            print('Error')
+            return jsonify({'status': 404})
+
+@bp.route('/student/<id_student>/option/<id_option>/delete', methods=['DELETE'])
+@login_required
+def delete_answer(id_student, id_option):
+    if request.method == 'DELETE':
+        option = current_user.api_client.Option(id_option)
+        student = current_user.api_client.Student(id_student)
+
+        try:
+            student.remove_answers(option)
+            return jsonify({'status': 204})
+        except:
+            flash('Error al borrar')
+            print('Error')
+            return jsonify({'status': 404})
 
 # @bp.route('/evaluacion/<int: id>', methods=['GET'])
 # def get_evaluacion(id):

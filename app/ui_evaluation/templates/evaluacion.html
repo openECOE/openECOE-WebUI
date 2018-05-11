@@ -1,115 +1,86 @@
-{% extends "base.html" %}
-
-
+{% extends "eval_base.html" %}
 {% block content %}
 <body>
 
-<div class="container">
-        <h2>{{ ecoe.name }}</h2>
-            <div id="accordion">
-                    <div class="card">
-                        <div class="card-header">
-                            <a class="collapsed card-link" data-toggle="collapse" href="#collapse">
-                                {{ station.name }}
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            {% for question in questions %}
-                              <div class="row">
-                                <div class="col-sm-9">
-                                 {{ question.question.description }}
-                                </div>
-                                <div class="col-sm-3">
-                                    {% for option in question.options %}
-                                        {% if question.question.type == 'CH' %}
-                                            <label>
-                                                <input type="checkbox" value="{{ option.value }}">
-                                                {{ option.label }}
-                                            </label>
-                                        {% endif %}
-                                        {% if question.question.type == 'RB' %}
-                                            <label>
-                                                <input type="radio" value="{{ option.value }}">
-                                                {{ option.label }}
-                                            </label>
-                                        {% endif %}
+<div class="container-fluid">
+    <h2>{{ ecoe.name }}</h2>
+    <h3>{{ station.name }}</h3>
 
-                                    {% endfor %}
-
-                                </div>
-                              </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-            </div>
-
-    {#                        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">{{ station.name }}</button>#}
-    {#                        <li><a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}">{{ station.name }}</a></li>#}
-</div>
-
-
-
-
-<ul style="background: #1b1e21">
-      <li>perico </li>
-      <li>juanico</li>
-      <li>la hora es no acabas la ecoe a tiempo</li>
-    </ul>
-<div>
-
-    <p>En curso/ Parado</p>
-    <p>Descanso/no descanso</p>
-    <p>tiempo: 9:00</p>
-    <table>
-  <!-- Cabecera -->
-  <tr>
-    <th>Día</th>   <!-- Celda de cabecera de la columna 1 -->
-    <th>Turno</th>   <!-- Celda de cabecera de la columna 2 -->
-    <th>Rueda</th>   <!-- Celda de cabecera de la columna 3 -->
-      <th>&nbsp;</th>
-      <th>Alumno</th>
-  </tr>
-  <!-- Primera fila -->
-  <tr>
-    <td>S</td>    <!-- Primera celda de la primera fila -->
-    <td>M</td>    <!-- Segunda celda de la primera fila -->
-    <td>A</td>    <!-- Tercera celda de la primera fila -->
-    <td>&nbsp;</td>
-    <td>&larr;1&rarr;</td>
-  </tr>
+    <table class="table table-striped">
+        <tr>
+            <th>Enunciado</th>
+            <th>Referencia</th>
+            <th>Opciones</th>
+        </tr>
+        {% for question in questions %}
+          <tr>
+            <td>
+             {{ loop.index }}.- {{ question.question.description }}
+            </td>
+            <td>
+                {{ question.question.reference }}
+            </td>
+            <td>
+                <div class="form-check">
+                {% for option in question.options %}
+                    {% if question.question.question_type == 'CH' %}
+                        <input type="checkbox" class="form-check-input" name="checkbox{{ question.id }}" id="checkbox{{ question.id }}{{ option.id }}" value="{{ option.points }}" onchange="sendAnswer(this, 1, {{ option.id }})"/>
+                        <label class="form-check-label" for="checkbox{{ question.id }}{{ option.id }}">{{ option.label }}</label>
+                    {% endif %}
+                    {% if question.question.question_type == 'RB' %}
+                        <input type="radio" class="form-check-input" name="radiobutton{{ question.id }}" id="radiobutton{{ question.id }}{{ option.id }}" value="{{ option.points }}" onchange="sendAnswer(this, 1, {{ option.id }})">
+                        <label class="form-check-label" for="radiobutton{{ question.id }}{{ option.id }}">{{ option.label }}</label>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </td>
+          </tr>
+        {% endfor %}
     </table>
-    <button>Terminar ronda</button>
 </div>
-
-
-<p class="question">1. What is the answer to this question?</p>
-
-<ul class="answers">
-<input type="radio" name="q1" value="a" id="q1a"><label for="q1a">Answer 1</label><br/>
-<input type="radio" name="q1" value="b" id="q1b"><label for="q1b">Answer 2</label><br/>
-<input type="radio" name="q1" value="c" id="q1c"><label for="q1c">Answer 3</label><br/>
-<input type="radio" name="q1" value="d" id="q1d"><label for="q1d">Answer 4</label><br/>
-</ul>
-
-
-<p class="question">2. What is the answer to this question?</p>
-
-<ul class="answers">
-<input type="radio" name="q2" value="a" id="q2a"><label for="q2a">Answer 1</label><br/>
-<input type="radio" name="q2" value="b" id="q2b"><label for="q2b">Answer 2</label><br/>
-</ul>
-
-<p class="question">3. What is the answer to this question?</p>
-
-<select name="OS">
-   <option value="1">Answer 1</option>
-   <option value="2">Answer 2</option>
-   <option value="3">Answer 3</option>
-   <option value="10">Answer 4</option>
-   <option value="11">Answer 5</option>
-   <option value="12">Answer 6</option>
-</select>
 </body>
-
 {% endblock %}
 
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        function deleteAnswer(id_student, id_option) {
+            var delete_url = "{{ url_for('.delete_answer', id_student='.id_student.', id_option='.id_option.') }}"
+                .replace('.id_student.', id_student)
+                .replace('.id_option.', id_option);
+
+            $.ajax({
+                url: delete_url,
+                type: 'DELETE',
+                success: function(res) {
+                    console.log(res)
+                }
+            });
+        }
+
+        function postAnswer(id_student, id_option) {
+            var post_url = "{{ url_for('.send_answer', id_student='.id_student.', id_option='.id_option.') }}"
+                .replace('.id_student.', id_student)
+                .replace('.id_option.', id_option);
+
+            $.ajax({
+                url: post_url,
+                type: 'POST',
+                success: function(result) {
+                    console.log(result);
+                }
+            });
+        }
+
+        function sendAnswer(htmlElement, id_student, id_option) {
+            console.log(event);
+
+            if (htmlElement.checked) {
+                postAnswer(id_student, id_option)
+            } else {
+                deleteAnswer(id_student, id_option);
+            }
+        }
+    </script>
+{% endblock %}

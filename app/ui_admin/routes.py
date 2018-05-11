@@ -47,19 +47,6 @@ def areas(id_ecoe):
         except:
             flash('Nombre de area duplicado')
 
-    # if request.method == 'PATCH':
-    #     id_area = request.args.get('id_area') or request.args.get('amp;id_area')
-    #     new_name = request.args.get('name') or request.args.get('amp;name')
-    #
-    #     if id_area and new_name:
-    #         area = current_user.api_client.Area(id_area)
-    #
-    #         try:
-    #             area.update(name=new_name)
-    #         except:
-    #             flash('Error al modificar')
-    #             print('Error')
-
     areas = current_user.api_client.Area.instances(where={"ecoe": ecoe})
     return render_template('areas.html', areas=areas, id_ecoe=id_ecoe, formAdd=formAdd)
 
