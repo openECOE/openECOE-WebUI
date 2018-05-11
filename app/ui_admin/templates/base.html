@@ -52,7 +52,22 @@
             });
         }
 
-        function editArea(ecoe, area) {
+        function editItem(model, id_item) {
+            var edit_url = "{{ url_for('.edit_item', model='.model.', id_item='.id_item.', name='.name.') }}"
+                .replace('.model.', model)
+                .replace('.id_item.', id_item)
+                .replace('.name.', $('#input_name'+id_item).val());
+
+            $.ajax({
+                url: edit_url,
+                type: 'PATCH',
+                success: function(result) {
+                    console.log(result);
+                }
+            });
+        }
+
+        function editStation(ecoe, area) {
             var edit_url = "{{ url_for('.areas', id_ecoe='.ecoe.', id_area='.area.', name='.name.') }}"
                 .replace('.ecoe.', ecoe)
                 .replace('.area.', area)

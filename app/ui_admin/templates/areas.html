@@ -21,11 +21,11 @@
                                             </button>
                                         </span>
 
-                                        <input type="text" id="name_area{{ area.id }}" class="form-control" value="{{ area.name }}" required />
+                                        <input type="text" id="input_name{{ area.id }}" class="form-control" value="{{ area.name }}" required />
                                         {#<span id="area{{ area.id }}">{{ area.name }}</span>#}
 
                                         <span class="input-group-btn">
-                                            <button type="submit" class="btn btn-default btn-sm" onclick="editArea({{ id_ecoe }}, {{ area.id }})">
+                                            <button type="submit" class="btn btn-default btn-sm" onclick="editItem('area', {{ area.id }})">
                                                 <span class="glyphicon glyphicon-pencil"></span>
                                             </button>
                                         </span>
