@@ -71,7 +71,7 @@ def delete_answer(id_student, id_option):
         student = current_user.api_client.Student(id_student)
 
         try:
-            student.removeAnswers(option)
+            student.remove_answers(option)
             return jsonify({'status': 204})
         except:
             flash('Error al borrar')
