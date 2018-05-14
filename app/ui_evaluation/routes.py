@@ -11,8 +11,8 @@ def index():
     ecoe = current_user.api_client.Ecoe.instances()
     return render_template('eval_index.html', title='Home',  ecoes=ecoe)
 
-@bp.route('/evaladmin/', methods=['GET'])
-@bp.route('/evaladmin/<int:id_ecoe>/', methods=['GET'])
+@bp.route('/evaluacion/', methods=['GET'])
+@bp.route('/evaluacion/<int:id_ecoe>/', methods=['GET'])
 @login_required
 def evaladmin(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -29,24 +29,29 @@ def evaladmin(id_ecoe):
 
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
-    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array)
+    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array )
 
 @bp.route('/ecoe', methods=['GET'])
-@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/student/<id_student>/', methods=['GET']) # /shift/<id_shift>/round/<id_round>
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
 @login_required
-def evaluacion(id_ecoe, id_station, id_student):
+def evaluacion(id_ecoe, id_station, id_shift, id_round):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     station = current_user.api_client.Station(id_station)
-    qblocks = station.qblocks()
+    shift = current_user.api_client.Shift(id_shift)
+    round = current_user.api_client.Round(id_round)
+    planner = current_user.api_client.Planner.instances(where={"shift": shift, "round": round})
+    students = current_user.api_client.Student.instances(where={"planner": planner})
 
+    qblocks = station.qblocks()
     questions_array = []
     for qblock in qblocks:
         questions = qblock.questions()
         for question in questions:
-            options =  current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
+            options =  current_user.api_client.Option.instances(where = {"question": question}, sort={"order": False})
             questions_array.append({'question': question,  'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station=station, qblock=qblocks, questions=questions_array, id_student=id_student)
+    return render_template('evaluacion.html', ecoe=ecoe, station = station, qblock=qblocks, questions=questions_array)
+
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
 @login_required
