@@ -13,9 +13,10 @@
             <th>Opciones</th>
         </tr>
         {% for question in questions %}
+            {% set question_loop = loop %}
           <tr>
             <td>
-             {{ loop.index }}.- {{ question.question.description }}
+             {{ question_loop.index }}.- {{ question.question.description }}
             </td>
             <td>
                 {{ question.question.reference }}
@@ -23,13 +24,14 @@
             <td>
                 <div class="form-check">
                 {% for option in question.options %}
+                    {% set option_loop = loop %}
                     {% if question.question.question_type == 'CH' %}
-                        <input type="checkbox" class="form-check-input" name="checkbox{{ question.id }}" id="checkbox{{ question.id }}{{ option.id }}" value="{{ option.points }}" onchange="sendAnswer(this, 1, {{ option.id }})"/>
-                        <label class="form-check-label" for="checkbox{{ question.id }}{{ option.id }}">{{ option.label }}</label>
+                        <input type="checkbox" class="form-check-input" name="checkbox{{ question.question.id }}" id="checkbox{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" onchange="sendAnswer(this, {{ id_student }}, {{ option.id }})"/>
+                        <label class="form-check-label" for="checkbox{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
                     {% endif %}
                     {% if question.question.question_type == 'RB' %}
-                        <input type="radio" class="form-check-input" name="radiobutton{{ question.id }}" id="radiobutton{{ question.id }}{{ option.id }}" value="{{ option.points }}" onchange="sendAnswer(this, 1, {{ option.id }})">
-                        <label class="form-check-label" for="radiobutton{{ question.id }}{{ option.id }}">{{ option.label }}</label>
+                        <input type="radio" class="form-check-input" name="radiobutton{{ question.question.id }}" id="radiobutton{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" onchange="sendAnswer(this, {{ id_student }}, {{ option.id }})">
+                        <label class="form-check-label" for="radiobutton{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
                     {% endif %}
                 {% endfor %}
                 </div>
@@ -73,8 +75,26 @@
             });
         }
 
+        function setupDeselectEvent() {
+            var selected = {};
+            $('input[type="radio"]').on('click', function() {
+                if (this.name in selected && this !== selected[this.name])
+                    $(selected[this.name]).trigger("deselect");
+                selected[this.name] = this;
+            });
+        }
+
+        $(document).ready(function() {
+            setupDeselectEvent(true);
+
+            $('input[type="radio"]').on('deselect', function() {
+                //alert('Radio ' + this.value + ' deselected');
+                deleteAnswer({{ id_student }}, this.value);
+            });
+        });
+
         function sendAnswer(htmlElement, id_student, id_option) {
-            console.log(event);
+            console.log(htmlElement);
 
             if (htmlElement.checked) {
                 postAnswer(id_student, id_option)
