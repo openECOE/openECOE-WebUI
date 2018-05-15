@@ -1,0 +1,19 @@
+# Require file ansible_vault.pass with passsword string for Ansible Vault
+---
+- name: Production tasks {{project_main_controller}}
+  hosts: production
+  become: yes
+  roles:
+    - openecoe.webui.prod
+
+- name: Install {{project_main_controller}}
+  hosts: all
+  become: yes # This means that all tasks will be executed with sudo
+  roles:
+    - openecoe.webui
+
+- name: Running supervisor
+  hosts: production
+  become: yes
+  roles:
+    - openecoe.webui.supervisor

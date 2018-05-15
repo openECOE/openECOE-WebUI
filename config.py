@@ -1,4 +1,6 @@
 import os
+from ast import literal_eval
+basedir = os.path.abspath(os.path.dirname(__file__))
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -6,10 +8,10 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
-    SERVER_NAME = "www.openecoe.com:5080"
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    WTF_CSRF_ENABLED = False
-    API_HOST = "10.1.56.112:5000"
-    API_ROUTE = "http://" + API_HOST + "/api"
-    API_AUTH_TOKEN = "http://" + API_HOST + "/auth/tokens"
+    SERVER_NAME = os.environ.get('SERVER_NAME')
+    SECRET_KEY =  os.environ.get('SECRET_KEY')
+    DEBUG = literal_eval(os.environ.get('DEBUG'))
+    TESTING = literal_eval(os.environ.get('TESTING'))
+    API_ROUTE = os.environ.get('API_ROUTE')
+    API_AUTH_TOKEN = os.environ.get('API_AUTH_TOKEN')
     LANGUAGES = ['en', 'es']
