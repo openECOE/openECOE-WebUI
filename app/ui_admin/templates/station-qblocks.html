@@ -1,0 +1,31 @@
+{% for qblock in qblocks %}
+    <div class="list-group list-group-flush">
+        <div class="list-group-item list-group-item-info">
+            <div class="input-group">
+                <span>{{ qblock.qblock.name }}</span>
+                <input type="hidden" id="input_name{{ qblock.qblock.id }}" class="form-control" value="{{ qblock.qblock.name }}" required />
+
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default btn-sm" onclick="">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+        {% for question in qblock.questions %}
+            <div class="input-group list-group list-group-flush">
+                <button class="list-group-item list-group-item-action" onclick="showOptions({{ question.id }})">{{ question.description }}</button>
+{#                <input type="text" id="input_name{{ question.id }}" class="form-control" value="{{ question.name }}" required />#}
+                <div id="questionGroup{{ question.id }}" class="list-group list-group-flush collapse"></div>
+
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default btn-sm" onclick="">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                </span>
+
+{#            glyphicon glyphicon-floppy-disk#}
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}
