@@ -11,8 +11,8 @@ def index():
     ecoe = current_user.api_client.Ecoe.instances()
     return render_template('eval_index.html', title='Home',  ecoes=ecoe)
 
-@bp.route('/evaluacion/', methods=['GET'])
-@bp.route('/evaluacion/<int:id_ecoe>/', methods=['GET'])
+@bp.route('/ecoe/', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
 @login_required
 def evaladmin(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
@@ -40,18 +40,17 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round):
     shift = current_user.api_client.Shift(id_shift)
     round = current_user.api_client.Round(id_round)
     planner = current_user.api_client.Planner.instances(where={"shift": shift, "round": round})
-    students = current_user.api_client.Student.instances(where={"planner": planner})
+    students = planner[0].students
 
     qblocks = station.qblocks()
     questions_array = []
     for qblock in qblocks:
         questions = qblock.questions()
         for question in questions:
-            options =  current_user.api_client.Option.instances(where = {"question": question}, sort={"order": False})
+            options =  current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
             questions_array.append({'question': question,  'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station = station, qblock=qblocks, questions=questions_array)
-
+    return render_template('evaluacion.html', ecoe=ecoe, station=station, qblock=qblocks, questions=questions_array, students=students)
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
 @login_required
