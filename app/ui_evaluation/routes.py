@@ -20,27 +20,40 @@ def evaladmin(id_ecoe):
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
     shifts_array = []
+    uniques_rounds = []
     for shift in shifts:
         planners = current_user.api_client.Planner.instances(where={"shift": shift})
         rounds_array = []
         for planner in planners:
             round = current_user.api_client.Round(planner.round.id)
             rounds_array.append(round)
-
+            uniques_rounds.append(round.round_code)
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
-    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array )
+    uniques_rounds = list(sorted(set(uniques_rounds)))
+    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds)
 
 @bp.route('/ecoe', methods=['GET'])
-@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/student/<int:id_student>', methods=['GET'])
 @login_required
-def evaluacion(id_ecoe, id_station, id_shift, id_round):
+def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     station = current_user.api_client.Station(id_station)
     shift = current_user.api_client.Shift(id_shift)
     round = current_user.api_client.Round(id_round)
     planner = current_user.api_client.Planner.instances(where={"shift": shift, "round": round})
-    students = planner[0].students
+    students = []
+    if planner[0].students:
+        students = planner[0].students
+
+    # actual_student = None
+    # try:
+    #     actual_student = current_user.api_client.Student(id_student)
+    # except:
+    #     actual_student = None
+
+    # if actual_student is not None:
+    #     print (students.index(id == actual_student.id).id)
 
     qblocks = station.qblocks()
     questions_array = []
@@ -48,8 +61,9 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round):
         questions = qblock.questions()
         for question in questions:
             options =  current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
-            questions_array.append({'question': question,  'options': options})
+            questions_array.append({'question': question, 'options': options})
 
+    students = [students[id_station - 2], students[id_station - 1], students[id_station]]
     return render_template('evaluacion.html', ecoe=ecoe, station=station, qblock=qblocks, questions=questions_array, students=students)
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
@@ -81,3 +95,5 @@ def delete_answer(id_student, id_option):
             flash('Error al borrar')
             print('Error al borrar')
             return jsonify({'status': 404})
+
+

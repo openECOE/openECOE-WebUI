@@ -5,8 +5,18 @@
 <div class="container-fluid">
     <h2>{{ ecoe.name }}</h2>
     <h3>{{ station.name }}</h3>
-{% set actual_student = students[station.id - 1] %}
-    <h2>{{ actual_student.name }}</h2>
+{#    {% if students|length > 0 %}#}
+        {% set actual_student = students[1] %}
+        <h2>
+            <button type="button" class="btn btn-default btn-sm" onclick="previousStudent()">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+            {{ actual_student.name }}
+            <button type="button" class="btn btn-default btn-sm" onclick="nextStudent()">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </button>
+        </h2>
+{#    {% endif %}#}
     <table class="table table-striped">
         <tr>
             <th>Enunciado</th>
@@ -100,6 +110,14 @@
             } else {
                 deleteAnswer(id_student, id_option);
             }
+        }
+
+        function nextStudent() {
+            var nextStudent = {{ students[0] }};
+        }
+
+        function previousStudent() {
+            var prevStudent = {{ students[2] }};
         }
     </script>
 {% endblock %}
