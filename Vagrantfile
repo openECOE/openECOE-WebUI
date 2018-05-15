@@ -2,7 +2,6 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-
   config.vm.box = "ubuntu/trusty64"
   config.vm.network "public_network"
   config.vm.synced_folder "./deploy", "/tmp/deploy", mount_options: ["dmode=775,fmode=664"]
@@ -10,7 +9,8 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.define "develop" do |dev|
-    dev.vm.network "private_network", ip: "192.168.11.11"
+
+    dev.vm.network "private_network", ip: "192.168.11.21"
     dev.vm.synced_folder ".", "/opt/openECOE-WebUI"
 
     dev.vm.hostname = "openecoe-webui-dev"
@@ -28,7 +28,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "production", autostart: false do |prod|
-    prod.vm.network "private_network", ip: "192.168.11.12"
+
+    prod.vm.network "private_network", ip: "192.168.11.22"
     prod.vm.hostname = "openecoe-webui"
 
     prod.vm.provision "ansible_local" do |ansible|
