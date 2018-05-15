@@ -1,8 +1,6 @@
-from flask import Flask
-from config import Config
+from flask import Blueprint
 
-app = Flask(__name__)
-app.config.from_object(Config)
+bp = Blueprint('ui_evaluation', __name__,
+               template_folder='templates')
 
 from ui_evaluation import routes
-

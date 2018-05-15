@@ -29,6 +29,9 @@ def create_app(config_class=Config):
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
+    from app.ui_evaluation import bp as ui_eval_bp
+    app.register_blueprint(ui_eval_bp, url_prefix = '/eval')
+
     return app
 
 
