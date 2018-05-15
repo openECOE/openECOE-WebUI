@@ -6,7 +6,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
-    SERVER_NAME = "localhost:5080"
+    SERVER_NAME = "192.168.11.21:5080"
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     WTF_CSRF_ENABLED = False
     API_HOST = "dev.api.openecoe.com:5000"
