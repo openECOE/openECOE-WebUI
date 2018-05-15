@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+    {% include "sidebar.html" with context %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-4">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h2>Areas</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for area in areas %}
+                                <li class="list-group-item">
+                                    <button type="button" class="btn btn-danger btn-sm">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button> {{ area.name }}
+
+                                    <button type="button" class="btn btn-default btn-sm" style="float: right">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    </button>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                {{ wtf.quick_form(form) }}
+            </div>
+        </div>
+    </div>
+
+</body>
+{% endblock %}

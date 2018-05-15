@@ -1,0 +1,29 @@
+{
+  "ECOE":
+    {
+    "id_ECOE" : 1,
+    "Nombre" : "ECOE2017"
+    },
+  "Estacion":
+    {
+     "id_estacion" : 1,
+      "Nombre" : "estacion 1"
+    },
+  "Usuario":
+    {
+      "id_usuario": 1,
+      "Nombre" : "Cristina"
+    },
+  "Dia":
+  {
+    "cod_dia": "S"
+  },
+  "Turno":
+  {
+    "cod_turno": "M"
+  },
+  "Rueda":
+  {
+    "cod_rueda": "A"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "Alumnos":
+          [
+            {
+              "id_alumno": 1,
+              "cod_alumno": 1
+            },
+            {
+              "id_alumno": 2,
+              "cod_alumno": 2
+            },
+            {
+              "id_alumno": 3,
+              "cod_alumno": 3
+            },
+            {
+              "id_alumno": 4,
+              "cod_alumno": 4
+            }
+
+          ]
+}

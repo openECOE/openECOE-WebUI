@@ -1,0 +1,68 @@
+{
+  "Preguntas":
+          [
+            {
+              "id_pregunta": 1,
+              "ref": "ref1",
+              "tipo_opcion": 1,
+              "area_pregunta": "Anamnesis",
+              "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue nunc, efficitur et iaculis et, sagittis at neque. Duis ultricies risus sit amet urna tincidunt, a bibendum libero venenatis. Praesent euismod felis sem, sit amet ornare massa blandit consectetur. Interdum et malesuada fames ac ante ipsum primis in faucibus",
+              "opciones":
+                      [
+                        {
+                          "id_opcion": 1,
+                          "valor": 10,
+                          "descripcion": "Si"
+                        },
+                        {
+                          "id_opcion": 2,
+                          "valor": 0,
+                          "descripcion": "No"
+                        }
+                      ]
+
+            },
+            {
+              "id_pregunta": 2,
+              "ref": "ref2",
+              "tipo_opcion": 2,
+              "area_pregunta": "Anamnesis2",
+              "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue nunc, efficitur et iaculis et, sagittis at neque. Duis ultricies risus sit amet urna tincidunt, a bibendum libero venenatis. Praesent euismod felis sem, sit amet ornare massa blandit consectetur. Interdum et malesuada fames ac ante ipsum primis in faucibus",
+              "opciones":
+                      [
+                        {
+                          "id_opcion": 1,
+                          "valor": 10,
+                          "descripcion": "Si"
+                        },
+                        {
+                          "id_opcion": 2,
+                          "valor": 0,
+                          "descripcion": "No"
+                        }
+                      ]
+
+            },
+            {
+              "id_pregunta": 3,
+              "ref": "ref3",
+              "tipo_opcion": 2,
+              "area_pregunta": "Anamnesis3",
+              "descripcion": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue nunc, efficitur et iaculis et, sagittis at neque. Duis ultricies risus sit amet urna tincidunt, a bibendum libero venenatis. Praesent euismod felis sem, sit amet ornare massa blandit consectetur. Interdum et malesuada fames ac ante ipsum primis in faucibus",
+              "opciones":
+                      [
+                        {
+                          "id_opcion": 1,
+                          "valor": 10,
+                          "descripcion": "Hola a todos"
+                        },
+                        {
+                          "id_opcion": 2,
+                          "valor": 0,
+                          "descripcion": "Adios a todos"
+                        }
+                      ]
+
+            }
+          ]
+}
