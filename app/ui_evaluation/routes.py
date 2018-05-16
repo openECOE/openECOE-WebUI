@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.ui_evaluation import bp
 from potion_client.exceptions import ItemNotFound
 from flask import request
+import sys
 
 @bp.route('/')
 @bp.route('/index')
@@ -10,6 +11,7 @@ from flask import request
 def index():
     ecoe = current_user.api_client.Ecoe.instances()
     return render_template('eval_index.html', title='Home',  ecoes=ecoe)
+
 
 @bp.route('/ecoe/', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
@@ -30,6 +32,7 @@ def evaladmin(id_ecoe):
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
     return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array )
+
 
 @bp.route('/ecoe', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
@@ -52,6 +55,7 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round):
 
     return render_template('evaluacion.html', ecoe=ecoe, station=station, qblock=qblocks, questions=questions_array, students=students)
 
+
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
 @login_required
 def send_answer(id_student, id_option):
@@ -67,17 +71,18 @@ def send_answer(id_student, id_option):
             print('Error')
             return jsonify({'status': 404})
 
+
 @bp.route('/student/<id_student>/option/<id_option>/delete', methods=['DELETE'])
 @login_required
 def delete_answer(id_student, id_option):
     if request.method == 'DELETE':
-        option = current_user.api_client.Option(id_option)
+        answer = current_user.api_client.Option(id_option)
         student = current_user.api_client.Student(id_student)
 
         try:
-            student.remove_answers(option)
+            student.remove_answers(answer)
             return jsonify({'status': 204})
         except:
             flash('Error al borrar')
-            print('Error al borrar')
+            print('Error al borrar', sys.exc_info()[0])
             return jsonify({'status': 404})

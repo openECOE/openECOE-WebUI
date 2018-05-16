@@ -5,7 +5,7 @@
 <div class="container-fluid">
     <h2>{{ ecoe.name }}</h2>
     <h3>{{ station.name }}</h3>
-{% set actual_student = students[station.id - 1] %}
+    {% set actual_student = students[station.id - 1] %}
     <h2>{{ actual_student.name }}</h2>
     <table class="table table-striped">
         <tr>
