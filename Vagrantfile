@@ -2,20 +2,50 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.network "private_network", ip: "192.168.11.21"
   config.vm.box = "ubuntu/trusty64"
   config.vm.network "public_network"
-  config.vm.network "forwarded_port", guest: 5080, host: 5080
+  config.vm.synced_folder "./deploy", "/tmp/deploy", mount_options: ["dmode=775,fmode=664"]
 
-  config.vm.provision "ansible_local" do |ansible|
-    #ansible.verbose = "v"
-    ansible.galaxy_role_file= "vagrant_requeriments.yml"
-    ansible.playbook = "vagrant_setup.yml"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.define "develop" do |dev|
+
+    dev.vm.network "private_network", ip: "192.168.11.21"
+    dev.vm.synced_folder ".", "/opt/openECOE-WebUI"
+
+    dev.vm.hostname = "openecoe-webui-dev"
+
+    dev.vm.provision "ansible_local" do |ansible|
+
+      #ansible.verbose = "vvv"
+      ansible.limit = "develop"
+      ansible.provisioning_path = "/tmp/deploy"
+      #ansible.galaxy_role_file = "requeriments.yml"
+      ansible.inventory_path = "inventory/develop"
+      ansible.playbook = "setup.yml"
+
+    end
+  end
+
+  config.vm.define "production", autostart: false do |prod|
+
+    prod.vm.network "private_network", ip: "192.168.11.22"
+    prod.vm.hostname = "openecoe-webui"
+
+    prod.vm.provision "ansible_local" do |ansible|
+      #ansible.verbose = "vvv"
+      ansible.limit = "production"
+      ansible.provisioning_path = "/tmp/deploy"
+      ansible.vault_password_file  = "ansible_vault.pass"
+      #ansible.galaxy_role_file = "requeriments.yml"
+      ansible.playbook = "setup.yml"
+      ansible.inventory_path = "inventory/production"
+    end
   end
 
   config.vm.provider "virtualbox" do |v|
   #  v.name = "openECOE-WebUI"
-    v.memory = 2048
+    v.memory = 4096
     v.cpus = 2
   end
 end

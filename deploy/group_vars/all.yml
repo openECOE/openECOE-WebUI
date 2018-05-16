@@ -1,0 +1,24 @@
+---
+base_path: /opt
+project_main_controller: openECOE-WebUI
+project_path: "{{base_path}}/{{project_main_controller}}"
+
+venv_path: "{{base_path}}/.venv"
+requirements_path: "{{project_path}}/requirements.txt"
+
+# Enviroment Config
+app_secret_key: 'TEST_ECOE'
+app_debug: False
+app_testing: False
+api_uri: "https://api.openecoe.com"
+api_route: "{{api_uri}}/api"
+api_auth_token: "{{api_uri}}/auth/tokens"
+languages: ['en', 'es']
+
+app_workers: 1
+
+supervisor_user: root
+supervisor_password: '1234'
+
+supervisor_inet_http_server_enable: true
+supervisor_inet_http_server_port: '*:9001'
