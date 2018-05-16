@@ -41,7 +41,8 @@ def evaladmin(id_ecoe):
 @login_required
 def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
-    station = current_user.api_client.Station(id_station)
+    actual_station = current_user.api_client.Station(id_station)
+    stations_count = len(current_user.api_client.Station.instances())
     shift = current_user.api_client.Shift(id_shift)
     round = current_user.api_client.Round(id_round)
     planner = current_user.api_client.Planner.instances(where={"shift": shift, "round": round})
@@ -49,18 +50,39 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     if planner[0].students:
         students = planner[0].students
 
+    previous_student = None
     actual_student = None
+    next_student = None
+
+    try:
+        if (id_student + 1) > stations_count:
+            previous_student = students[0]
+        else:
+            previous_student = current_user.api_client.Student(id_student + 1)
+    except:
+        previous_student = None
+
     try:
         actual_student = current_user.api_client.Student(id_student)
     except:
         actual_student = None
 
-    if actual_student is not None:
-        exists = any(x.id == actual_student.id for x in students)
-        if exists:
-            students = [students[id_student - 2], students[id_student - 1], students[id_student]]
+    try:
+        if (id_student - 1) < 1:
+            next_student = students[len(students) - 1]
+        else:
+            next_student = current_user.api_client.Student(id_student - 1)
+    except:
+        next_student = None
 
-    qblocks = station.qblocks()
+    # if actual_student is not None:
+    #     exists = any(x.id == actual_student.id for x in students)
+    #     if exists:
+    #         students = [students[id_student - 2], students[id_student - 1], students[id_student]]
+
+    students = [previous_student, actual_student, next_student]
+
+    qblocks = actual_station.qblocks()
     questions_array = []
     for qblock in qblocks:
         questions = qblock.questions()
@@ -68,7 +90,7 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
             options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
             questions_array.append({'question': question, 'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station=station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
+    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
