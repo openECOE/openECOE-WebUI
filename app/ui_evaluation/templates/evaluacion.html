@@ -8,13 +8,17 @@
     {#    {% if students|length > 0 %}#}
         {% set actual_student = students[1] %}
         <h2>
-            <button type="button" class="btn btn-default btn-sm" onclick="previousStudent()">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-            </button>
+            <a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=id_shift, id_round=id_round, id_student=students[0].id) }}">
+                <button type="button" class="btn btn-default btn-sm" onclick="previousStudent()">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </button>
+            </a>
             {{ actual_student.name }}
-            <button type="button" class="btn btn-default btn-sm" onclick="nextStudent()">
-                <span class="glyphicon glyphicon-chevron-right"></span>
-            </button>
+            <a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=id_shift, id_round=id_round, id_student=students[2].id) }}">
+                <button type="button" class="btn btn-default btn-sm" onclick="nextStudent()">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </button>
+            </a>
         </h2>
 {#    {% endif %}#}
     <table class="table table-striped">
@@ -110,14 +114,6 @@
             } else {
                 deleteAnswer(id_student, id_option);
             }
-        }
-
-        function nextStudent() {
-            var nextStudent = {{ students[0] }};
-        }
-
-        function previousStudent() {
-            var prevStudent = {{ students[2] }};
         }
     </script>
 {% endblock %}

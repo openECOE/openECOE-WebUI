@@ -49,25 +49,26 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     if planner[0].students:
         students = planner[0].students
 
-    # actual_student = None
-    # try:
-    #     actual_student = current_user.api_client.Student(id_student)
-    # except:
-    #     actual_student = None
+    actual_student = None
+    try:
+        actual_student = current_user.api_client.Student(id_student)
+    except:
+        actual_student = None
 
-    # if actual_student is not None:
-    #     print (students.index(id == actual_student.id).id)
+    if actual_student is not None:
+        exists = any(x.id == actual_student.id for x in students)
+        if exists:
+            students = [students[id_student - 2], students[id_student - 1], students[id_student]]
 
     qblocks = station.qblocks()
     questions_array = []
     for qblock in qblocks:
         questions = qblock.questions()
         for question in questions:
-            options =  current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
+            options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
             questions_array.append({'question': question, 'options': options})
 
-    students = [students[id_station - 2], students[id_station - 1], students[id_station]]
-    return render_template('evaluacion.html', ecoe=ecoe, station=station, qblock=qblocks, questions=questions_array, students=students)
+    return render_template('evaluacion.html', ecoe=ecoe, station=station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
