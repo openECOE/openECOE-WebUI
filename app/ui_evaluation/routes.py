@@ -13,16 +13,32 @@ def index():
 
 @bp.route('/ecoe/', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/round/<int:id_round>', methods=['GET'])
 @login_required
-def evaladmin(id_ecoe):
+def evaladmin(id_ecoe, id_station=None, id_round=None):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
-    station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
+    station = []
+
+    if id_station != None:
+        station.append(current_user.api_client.Station(id_station))
+    else:
+        station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
+
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
     shifts_array = []
     uniques_rounds = []
     for shift in shifts:
-        planners = current_user.api_client.Planner.instances(where={"shift": shift})
+        planners_q = {"shift": shift}
+
+        if id_round != None:
+            planners_q.update({"round": id_round})
+
+        planners = current_user.api_client.Planner.instances(where=planners_q)
+
+
+
         rounds_array = []
         for planner in planners:
             round = current_user.api_client.Round(planner.round.id)
@@ -30,7 +46,9 @@ def evaladmin(id_ecoe):
             uniques_rounds.append(round.round_code)
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
+
     uniques_rounds = list(sorted(set(uniques_rounds)))
+
     return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds)
 
 @bp.route('/ecoe', methods=['GET'])

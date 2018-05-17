@@ -9,7 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from requests import exceptions
 from potion_client.auth import HTTPBearerAuth
-from api_client import create_api
+from api_client import create_api, delete_api
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -50,6 +50,7 @@ def load_user(token):
         logged_user.api_client = create_api(token)
         user = logged_user.api_client.User.read_me()
     except:
+        delete_api(token)
         return None
 
     logged_user.token = token

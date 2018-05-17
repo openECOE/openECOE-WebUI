@@ -11,3 +11,7 @@ def create_api(token):
         api_clients[token] = Client(current_app.config.get('API_ROUTE'), auth=HTTPBearerAuth(token))
 
     return api_clients[token]
+
+def delete_api(token):
+    if token in api_clients:
+        api_clients.pop(token)
