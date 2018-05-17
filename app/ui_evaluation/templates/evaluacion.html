@@ -12,7 +12,7 @@
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </button>
         </a>
-        {% if students[1]._status != None %}
+        {% if student_exists %}
             {{ actual_student.name }}
         {% else %}
             No Student
@@ -23,7 +23,7 @@
             </button>
         </a>
     </h2>
-    {% if students[1]._status != None %}
+    {% if student_exists %}
         <table class="table table-striped">
             <tr>
                 <th>Enunciado</th>

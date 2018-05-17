@@ -75,12 +75,9 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     except:
         next_student = None
 
-    # if actual_student is not None:
-    #     exists = any(x.id == actual_student.id for x in students)
-    #     if exists:
-    #         students = [students[id_student - 2], students[id_student - 1], students[id_student]]
+    student_exists = any(x.id == actual_student.id for x in students)
 
-    students = [previous_student, actual_student, next_student]
+    students_template = [previous_student, actual_student, next_student]
 
     qblocks = actual_station.qblocks()
     questions_array = []
@@ -90,7 +87,7 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
             options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
             questions_array.append({'question': question, 'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
+    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students_template, student_exists=student_exists)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
