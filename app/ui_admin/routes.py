@@ -12,6 +12,26 @@ def home():
     ecoes = current_user.api_client.Ecoe.instances()
     return render_template('index.html', ecoes=ecoes)
 
+
+@bp.route('/ecoe/<int:id_ecoe>/rounds')
+@login_required
+def roundsChronos(id_ecoe):
+    ecoe = current_user.api_client.Ecoe(id_ecoe)
+
+    rounds = [
+        {'id': r.id, 'chrono_route': current_app.config.get('CHRONO_ROUTE') + "/round%d" % r.id}
+        for r in ecoe.rounds
+    ]
+
+    actions_chrono_url = {
+        'start': current_app.config.get('CHRONO_ROUTE') + "/start",
+        'play': current_app.config.get('CHRONO_ROUTE') + "/play",
+        'pause': current_app.config.get('CHRONO_ROUTE') + "/pause"
+    }
+
+    return render_template('rounds_chronos.html', id_ecoe=id_ecoe, rounds=rounds, actions_url=actions_chrono_url)
+
+
 @bp.route('/ecoe/', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/info/', methods=['GET'])
