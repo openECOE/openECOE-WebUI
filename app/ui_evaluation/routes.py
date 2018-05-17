@@ -76,8 +76,11 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
         next_student = None
 
     student_exists = any(x.id == actual_student.id for x in students)
+    student_answers = []
+    if student_exists:
+        student_answers = actual_student.answers
 
-    students_template = [previous_student, actual_student, next_student]
+    students_selector = [previous_student, actual_student, next_student]
 
     qblocks = actual_station.qblocks()
     questions_array = []
@@ -85,9 +88,15 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
         questions = qblock.questions()
         for question in questions:
             options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
+            for answer in student_answers:
+                for opt in options:
+                    if answer.id == opt.id:
+                        opt.checked = True
+                        break
+
             questions_array.append({'question': question, 'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students_template, student_exists=student_exists)
+    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])

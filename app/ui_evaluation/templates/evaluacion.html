@@ -8,7 +8,7 @@
     {% set actual_student = students[1] %}
     <h2>
         <a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=id_shift, id_round=id_round, id_student=students[0].id) }}">
-            <button type="button" class="btn btn-default btn-sm" onclick="previousStudent()">
+            <button type="button" class="btn btn-default btn-sm">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </button>
         </a>
@@ -18,7 +18,7 @@
             No Student
         {% endif %}
         <a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=id_shift, id_round=id_round, id_student=students[2].id) }}">
-            <button type="button" class="btn btn-default btn-sm" onclick="nextStudent()">
+            <button type="button" class="btn btn-default btn-sm">
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </button>
         </a>
@@ -44,11 +44,24 @@
                     {% for option in question.options %}
                         {% set option_loop = loop %}
                         {% if question.question.question_type == 'CH' %}
-                            <input type="checkbox" class="form-check-input" name="checkbox{{ question.question.id }}" id="checkbox{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" onchange="sendAnswer(this, {{ actual_student.id }}, {{ option.id }})"/>
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   name="checkbox{{ question.question.id }}"
+                                   id="checkbox{{ question.question.id }}{{ option.id }}"
+                                   value="{{ option.id }}"
+                                    {% if option.checked %}checked{% endif %}
+                                   onchange="sendAnswer(this, {{ actual_student.id }}, {{ option.id }})"/>
                             <label class="form-check-label" for="checkbox{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
                         {% endif %}
                         {% if question.question.question_type == 'RB' %}
-                            <input type="radio" class="form-check-input" name="radiobutton{{ question.question.id }}" id="radiobutton{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" placeholder="{{ actual_student.id }}" onchange="sendAnswer(this, {{ actual_student.id }}, {{ option.id }})">
+                            <input type="radio"
+                                   class="form-check-input"
+                                   name="radiobutton{{ question.question.id }}"
+                                   id="radiobutton{{ question.question.id }}{{ option.id }}"
+                                   value="{{ option.id }}"
+                                   placeholder="{{ actual_student.id }}"
+                                   {% if option.checked %}checked{% endif %}
+                                   onchange="sendAnswer(this, {{ actual_student.id }}, {{ option.id }})">
                             <label class="form-check-label" for="radiobutton{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
                         {% endif %}
                     {% endfor %}
