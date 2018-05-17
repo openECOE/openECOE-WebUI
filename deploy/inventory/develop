@@ -1,5 +1,0 @@
-[apiservers]
-dev.www.openecoe.com
-
-[develop:children]
-apiservers
