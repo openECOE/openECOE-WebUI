@@ -1,69 +1,67 @@
 {% extends "eval_base.html" %}
+{% from 'macros.html' import info_chrono_station %}
+
 {% block content %}
-<body>
 
 <div class="container-fluid">
+
+    {{ info_chrono_station() }}
+
     <h2>{{ ecoe.name }}</h2>
     <h3>{{ station.name }}</h3>
-    {% set actual_student = students[1] %}
-    <h2>
-        <a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=id_shift, id_round=id_round, id_student=students[0].id) }}">
+{#    {% if students|length > 0 %}#}
+        {% set actual_student = students[1] %}
+        <h2>
             <button type="button" class="btn btn-default btn-sm" onclick="previousStudent()">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </button>
-        </a>
-        {% if students[1]._status != None %}
             {{ actual_student.name }}
-        {% else %}
-            No Student
-        {% endif %}
-        <a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=id_shift, id_round=id_round, id_student=students[2].id) }}">
             <button type="button" class="btn btn-default btn-sm" onclick="nextStudent()">
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </button>
-        </a>
-    </h2>
-    {% if students[1]._status != None %}
-        <table class="table table-striped">
-            <tr>
-                <th>Enunciado</th>
-                <th>Referencia</th>
-                <th>Opciones</th>
-            </tr>
-            {% for question in questions %}
-                {% set question_loop = loop %}
-              <tr>
-                <td>
-                 {{ question_loop.index }}.- {{ question.question.description }}
-                </td>
-                <td>
-                    {{ question.question.reference }}
-                </td>
-                <td>
-                    <div class="form-check">
-                    {% for option in question.options %}
-                        {% set option_loop = loop %}
-                        {% if question.question.question_type == 'CH' %}
-                            <input type="checkbox" class="form-check-input" name="checkbox{{ question.question.id }}" id="checkbox{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" onchange="sendAnswer(this, {{ actual_student.id }}, {{ option.id }})"/>
-                            <label class="form-check-label" for="checkbox{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
-                        {% endif %}
-                        {% if question.question.question_type == 'RB' %}
-                            <input type="radio" class="form-check-input" name="radiobutton{{ question.question.id }}" id="radiobutton{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" placeholder="{{ actual_student.id }}" onchange="sendAnswer(this, {{ actual_student.id }}, {{ option.id }})">
-                            <label class="form-check-label" for="radiobutton{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
-                        {% endif %}
-                    {% endfor %}
-                    </div>
-                </td>
-              </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
+        </h2>
+{#    {% endif %}#}
+    <table class="table table-striped">
+        <tr>
+            <th>Enunciado</th>
+            <th>Referencia</th>
+            <th>Opciones</th>
+        </tr>
+        {% for question in questions %}
+            {% set question_loop = loop %}
+          <tr>
+            <td>
+             {{ question_loop.index }}.- {{ question.question.description }}
+            </td>
+            <td>
+                {{ question.question.reference }}
+            </td>
+            <td>
+                <div class="form-check">
+                {% for option in question.options %}
+                    {% set option_loop = loop %}
+                    {% if question.question.question_type == 'CH' %}
+                        <input type="checkbox" class="form-check-input" name="checkbox{{ question.question.id }}" id="checkbox{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" onchange="sendAnswer(this, 1, {{ option.id }})"/>
+                        <label class="form-check-label" for="checkbox{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
+                    {% endif %}
+                    {% if question.question.question_type == 'RB' %}
+                        <input type="radio" class="form-check-input" name="radiobutton{{ question.question.id }}" id="radiobutton{{ question.question.id }}{{ option.id }}" value="{{ option.id }}" onchange="sendAnswer(this, 1, {{ option.id }})">
+                        <label class="form-check-label" for="radiobutton{{ question.question.id }}{{ option.id }}">{{ option.label }}</label>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
 </div>
-</body>
+
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
+
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
 
     <script>
         function deleteAnswer(id_student, id_option) {
@@ -103,11 +101,57 @@
             });
         }
 
+        function instant(minutes, seconds) {
+            return "[" + minutes + ":" + seconds + "]";
+        }
+
         $(document).ready(function() {
+
+            /*** SOCKETS ***/
+
+            var socket = io.connect('{{ chrono_route }}');
+
+            socket.on('connect', function () {
+                //$("#log").append('Estación {{ station.id }}: conectada a rueda {{ id_round }}<br>');
+                console.log('Estación {{ station.id }}: conectada a rueda {{ id_round }}')
+            });
+
+            socket.on('end_round', function(msg) {
+                $('#clock').css("color", "green").show('slow');
+                //$('#log').append("<span style='color:blue'>"+msg.data+"</span><br>");
+                console.log(msg.data)
+            });
+
+            socket.on('init_stage', function(msg) {
+                $('#clock').fadeOut('fast').fadeIn('fast');
+            });
+
+            socket.on('evento', function(msg) {
+                if (jQuery.inArray({{ station.id }}+"", msg.target.split(",")) >= 0) {
+                    //$('#log').append("<span style='color:green'>[" + msg.stage + "] " + msg.data + " => " + msg.target + "</span><br>");
+                    console.log("[" + msg.stage + "] " + msg.data + " => " + msg.target)
+                }
+            });
+
+            socket.on('tic_tac', function(msg) {
+                $('#clock').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);
+
+                if (msg.stopped == 'S') {
+                    $('#clock').css("color", "red");
+                    //$('#log').append("<span style='color:red'>"+instant(msg.minutes, msg.seconds)+" Crono parado</span><br>");
+                    console.log(instant(msg.minutes, msg.seconds)+" Crono parado");
+                }
+                else
+                    $('#clock').css("color", "black");
+            });
+
+            /*** END SOCKETS ***/
+
             setupDeselectEvent(true);
 
             $('input[type="radio"]').on('deselect', function() {
-                deleteAnswer(this.placeholder, this.value);
+                //alert('Radio ' + this.value + ' deselected');
+                deleteAnswer(1, this.value);
             });
         });
 
@@ -117,6 +161,14 @@
             } else {
                 deleteAnswer(id_student, id_option);
             }
+        }
+
+        function nextStudent() {
+            var nextStudent = {{ students[0] }};
+        }
+
+        function previousStudent() {
+            var prevStudent = {{ students[2] }};
         }
     </script>
 {% endblock %}

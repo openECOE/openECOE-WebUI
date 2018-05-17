@@ -1,0 +1,13 @@
+{% macro info_chrono_station() %}
+    <div><h1 id="clock">--:--</h1></div>
+    <br>
+    <div id="log"></div>
+{% endmacro %}
+
+{% macro info_chrono_admin(rounds) %}
+
+    {% for r in rounds %}
+        <div><h1>Rueda {{ r.id }} (vuelta <span id="vuelta{{ r.id }}"></span>): <span id="clock{{ r.id }}">--:--</span></h1></div>
+    {% endfor %}
+
+{% endmacro %}

@@ -90,7 +90,9 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
             options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
             questions_array.append({'question': question, 'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
+    chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round.id
+
+    return render_template('evaluacion.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])

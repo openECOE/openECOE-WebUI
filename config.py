@@ -14,4 +14,6 @@ class Config(object):
     TESTING = literal_eval(os.environ.get('TESTING'))
     API_ROUTE = os.environ.get('API_ROUTE')
     API_AUTH_TOKEN = os.environ.get('API_AUTH_TOKEN')
+    CHRONO_ROUTE = os.environ.get('CHRONO_ROUTE')
     LANGUAGES = ['en', 'es']
+
