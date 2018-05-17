@@ -9,7 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from requests import exceptions
 from potion_client.auth import HTTPBearerAuth
-from api_client import create_api, delete_api
+from app.api_client import create_api, delete_api
 
 
 @bp.route('/login', methods=['GET', 'POST'])
