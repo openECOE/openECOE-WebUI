@@ -107,6 +107,8 @@
 
         $(document).ready(function() {
 
+            $('#myaudio').hide();
+
             /*** SOCKETS ***/
 
             var socket = io.connect('{{ chrono_route }}');
@@ -130,6 +132,8 @@
                 if (jQuery.inArray({{ station.id }}+"", msg.target.split(",")) >= 0) {
                     //$('#log').append("<span style='color:green'>[" + msg.stage + "] " + msg.data + " => " + msg.target + "</span><br>");
                     console.log("[" + msg.stage + "] " + msg.data + " => " + msg.target)
+                    $("#myaudio").attr('src', '{{ url_for('static', filename='sounds/') }}'+msg.data)
+                    $('#myaudio').trigger('play');
                 }
             });
 

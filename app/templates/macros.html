@@ -1,7 +1,9 @@
 {% macro info_chrono_station() %}
     <div><h1 id="clock">--:--</h1></div>
-    <br>
-    <div id="log"></div>
+
+    <audio class="audios" id="myaudio" controls preload="none">
+       <source src="" type="audio/mpeg">
+    </audio>
 {% endmacro %}
 
 {% macro info_chrono_admin(rounds) %}
