@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/opt/openECOE-WebUI"
     
-    config.vm.network "private_network", ip: "192.168.11.21"
+    config.vm.network "private_network", ip: "192.168.11.22"
 
     config.vm.provision "ansible_local" do |ansible|
         #ansible.verbose = "vvv"
@@ -22,7 +22,6 @@ Vagrant.configure("2") do |config|
         ansible.inventory_path = "inventory/develop"
         ansible.playbook = "setup.webui.yml"
     end
-  
 
     config.vm.provider "virtualbox" do |v|
         #  v.name = "openECOE-WebUI"
