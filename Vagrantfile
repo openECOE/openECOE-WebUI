@@ -16,11 +16,11 @@ Vagrant.configure("2") do |config|
 
     config.vm.provision "ansible_local" do |ansible|
         #ansible.verbose = "vvv"
-        ansible.limit = "develop"
+        ansible.limit = "webui"
         ansible.provisioning_path = "/tmp/deploy"
         #ansible.galaxy_role_file = "requeriments.yml"
         ansible.inventory_path = "inventory/develop"
-        ansible.playbook = "setup.yml"
+        ansible.playbook = "setup.webui.yml"
     end
   
 
