@@ -1,0 +1,29 @@
+{% extends "eval_base.html" %}
+{% from 'macros.html' import info_chrono_station, client_eval_socket %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2>{{ ecoe.name }} / {{ round.round_code }}</h2>
+
+    {{ info_chrono_station() }}
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
+
+    <script>
+
+        $(document).ready(function() {
+            {{ client_eval_socket(chrono_route, station_id, round.id) }}
+        });
+
+    </script>
+
+{% endblock %}
