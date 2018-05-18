@@ -11,8 +11,6 @@ Vagrant.configure("2") do |config|
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/opt/openECOE-WebUI"
-
-    config.vm.network "forwarded_port", guest: 5080, host: 5080
     
     config.vm.network "private_network", ip: "192.168.11.22"
 

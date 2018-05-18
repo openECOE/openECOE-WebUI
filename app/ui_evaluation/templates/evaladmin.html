@@ -6,6 +6,7 @@
         <h2>{{ ecoe.name }}</h2>
             <div id="accordion">
                 {% for station in stations %}
+                    {% set station_loop = loop %}
                     <div class="card">
                       <div class="card-header">
                         <a class="collapsed card-link" data-toggle="collapse" href="#collapse{{ station.id }}">
@@ -30,7 +31,7 @@
                                             {% for round in shift.rounds %}
                                                 <td>
                                                     <button>
-                                                        <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.shift.id, id_round=round.id, id_student=station.id) }}">
+                                                        <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.shift.id, id_round=round.id, order_student=station_loop.index) }}">
                                                             Iniciar evaluación
                                                         </a>
                                                     </button>

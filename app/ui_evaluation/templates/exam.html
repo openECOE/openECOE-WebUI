@@ -31,7 +31,7 @@
                         <td>{{ shift.shift_code }}</td>
                         <td>{{ round.round_code  }}</td>
                         <td>
-                            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id, id_student=students[0].id) }}">
+                            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id, order_student=students[0].planner_order) }}">
                                 <button type="button" class="btn btn-default btn-sm btn-warning">
                                     <span class="glyphicon glyphicon-chevron-left"></span>
                                 </button></a>
@@ -40,7 +40,7 @@
                             {% else %}
                                 <span class="text-danger">No</span>
                             {% endif %}
-                            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id, id_student=students[2].id) }}">
+                            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id, order_student=students[2].planner_order) }}">
                                 <button type="button" class="btn btn-default btn-sm btn-info">
                                     <span class="glyphicon glyphicon-chevron-right"></span>
                                 </button></a>
