@@ -65,11 +65,6 @@ def exam(id_ecoe, id_station, id_shift, id_round, id_student):
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
     shift = planner.shift
     round = planner.round
-    # students = []
-    # if planner[0].students:
-    #     students = planner[0].students
-    #
-    #
 
     students = planner.students
 
