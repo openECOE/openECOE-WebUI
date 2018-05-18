@@ -97,7 +97,7 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
 
 @bp.route('/ecoe/<int:ecoe_id>/shift/<int:shift_id>/round/<int:round_id>/outside/<int:station_id>')
 @login_required
-def outside(ecoe_id, shift_id, round_id, station_id):
+def outside_station(ecoe_id, shift_id, round_id, station_id):
     ecoe = current_user.api_client.Ecoe(ecoe_id)
     station = current_user.api_client.Station(station_id)
     shift = current_user.api_client.Shift(shift_id)
