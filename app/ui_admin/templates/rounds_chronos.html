@@ -5,18 +5,27 @@
 
         <div class="row">
             <div class="col-sm-12 text-center">
-                <a id="start" href="#" class="btn btn-success btn-lg active" role="button" aria-pressed="true">Iniciar todo</a>
-                <a id="pauseall" href="#" class="btn btn-danger btn-lg active" role="button" aria-pressed="true">Parar todo</a>
+                <button id="start" class="btn btn-success btn-lg" >Iniciar</button>
+                <button id="pauseall" class="btn btn-warning btn-lg" >Pausar todo</button>
+                <button id="playall" class="btn btn-primary btn-lg" >Continuar todo</button>
             </div>
         </div>
 
         {% for r in rounds %}
 
             <div class="row">
-                <div class="col-sm-1"><a id="play{{ r['id'] }}" href="#" class="btn btn-primary btn-lg active" role="link" aria-pressed="true">Play</a></div>
-                <div class="col-sm-1"><a id="pause{{ r['id'] }}" href="#" class="btn btn-warning btn-lg active" role="link" aria-pressed="true">Pause</a></div>
 
-                <div class="col-sm-10"><h2>Rueda {{ r['id'] }} (vuelta <span id="vuelta{{ r['id'] }}"></span>): <span id="clock{{ r['id'] }}">--:--</span></h2></div>
+                <div class="col-sm-2">
+                    <button type="button" id="play{{ r['id'] }}" class="btn btn-primary">Continuar</button>
+                </div>
+
+                <div class="col-sm-2">
+                    <button type="button" id="pause{{ r['id'] }}" class="btn btn-warning">Pausar</button>
+                </div>
+
+                <div class="col-sm-8">
+                    <h2>Rueda {{ r['id'] }} (vuelta <span id="vuelta{{ r['id'] }}"></span>): <span id="clock{{ r['id'] }}">--:--</span></h2>
+                </div>
 
             </div>
 
@@ -37,7 +46,6 @@
         $(document).ready(function() {
 
             $("#start").click(function (event) {
-                    event.preventDefault();
 
                     $.ajax({
                         url: '{{ actions_url['start'] }}',
@@ -49,7 +57,6 @@
             });
 
             $("#pauseall").click(function (event) {
-                    event.preventDefault();
 
                     $.ajax({
                         url: '{{ actions_url['pause'] }}',
@@ -59,6 +66,17 @@
                         }
                     });
 
+            });
+
+            $("#playall").click(function (event) {
+
+                    $.ajax({
+                        url: '{{ actions_url['play'] }}',
+
+                        success: function(res) {
+                            console.log(res)
+                        }
+                    });
             });
 
             {% for r in rounds %}
@@ -97,7 +115,6 @@
                 });
 
                 $("#play{{ r['id'] }}").click(function (event) {
-                    event.preventDefault();
 
                     $.ajax({
                         url: '{{ actions_url['play'] }}/{{ r['id'] }}',
@@ -110,7 +127,6 @@
                 });
 
                 $("#pause{{ r['id'] }}").click(function (event) {
-                    event.preventDefault();
 
                     $.ajax({
                         url: '{{ actions_url['pause'] }}/{{ r['id'] }}',
