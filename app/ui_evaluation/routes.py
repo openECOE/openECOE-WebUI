@@ -95,6 +95,19 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     return render_template('evaluacion.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
 
 
+@bp.route('/ecoe/<int:ecoe_id>/shift/<int:shift_id>/round/<int:round_id>/outside/<int:station_id>')
+@login_required
+def outside(ecoe_id, shift_id, round_id, station_id):
+    ecoe = current_user.api_client.Ecoe(ecoe_id)
+    station = current_user.api_client.Station(station_id)
+    shift = current_user.api_client.Shift(shift_id)
+    round = current_user.api_client.Round(round_id)
+
+    chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round_id
+
+    return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, shift=shift, round=round, station=station)
+
+
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
 @login_required
 def send_answer(id_student, id_option):

@@ -1,0 +1,73 @@
+{% extends "eval_base.html" %}
+{% from 'macros.html' import info_chrono_station %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2>{{ ecoe.name }}</h2>
+    <h3>{{ shift.shift_code }} / {{ round.round_code }}</h3>
+
+    {{ info_chrono_station() }}
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
+
+    <script>
+
+        function instant(minutes, seconds) {
+            return "[" + minutes + ":" + seconds + "]";
+        }
+
+        $(document).ready(function() {
+
+            $('#myaudio').hide();
+
+            /*** SOCKETS ***/
+
+            var socket = io.connect('{{ chrono_route }}');
+
+            socket.on('connect', function () {
+                console.log('Estación {{ station.id }}: conectada a rueda {{ id_round }}')
+            });
+
+            socket.on('end_round', function(msg) {
+                $('#clock').css("color", "green").show('slow');
+                console.log(msg.data)
+            });
+
+            socket.on('init_stage', function(msg) {
+                $('#clock').fadeOut('fast').fadeIn('fast');
+            });
+
+            socket.on('evento', function(msg) {
+                if (jQuery.inArray({{ station.id }}+"", msg.target.split(",")) >= 0) {
+                    console.log("[" + msg.stage + "] " + msg.data + " => " + msg.target)
+                    $("#myaudio").attr('src', '{{ url_for('static', filename='sounds/') }}'+msg.sound)
+                    $('#myaudio').trigger('play');
+                }
+            });
+
+            socket.on('tic_tac', function(msg) {
+                $('#clock').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);
+
+                if (msg.stopped == 'S') {
+                    $('#clock').css("color", "red");
+                    console.log(instant(msg.minutes, msg.seconds)+" Crono parado");
+                }
+                else
+                    $('#clock').css("color", "black");
+            });
+
+            /*** END SOCKETS ***/
+        });
+
+    </script>
+
+{% endblock %}
