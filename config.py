@@ -8,7 +8,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
-    SERVER_NAME = os.environ.get('SERVER_NAME')
+    #SERVER_NAME = os.environ.get('SERVER_NAME')
     SECRET_KEY =  os.environ.get('SECRET_KEY')
     DEBUG = literal_eval(os.environ.get('DEBUG'))
     TESTING = literal_eval(os.environ.get('TESTING'))

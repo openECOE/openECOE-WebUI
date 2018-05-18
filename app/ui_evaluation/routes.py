@@ -24,7 +24,7 @@ def evaladmin(id_ecoe, id_station=None, id_round=None):
     if id_station != None:
         station.append(current_user.api_client.Station(id_station))
     else:
-        station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
+        station = current_user.api_client.Station.instances(where={"ecoe": ecoe}, sort={"name": False})
 
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
@@ -58,70 +58,70 @@ def evaladmin(id_ecoe, id_station=None, id_round=None):
 
 
 @bp.route('/ecoe', methods=['GET'])
-@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/student/<int:id_student>', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>', methods=['GET'])
 @login_required
-def exam(id_ecoe, id_station, id_shift, id_round, id_student):
+def exam(id_ecoe, id_station, id_shift, id_round, order_student):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
-    stations_count = len(current_user.api_client.Station.instances(where={"ecoe": id_ecoe}))
-    # shift = current_user.api_client.Shift(id_shift)
-    # round = current_user.api_client.Round(id_round)
+    stations = current_user.api_client.Station.instances(where={"ecoe": id_ecoe}, sort={"name": False})
+    stations_count = len(stations)
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
     shift = planner.shift
     round = planner.round
 
-    students = planner.students
-
-    #current_user.api_client.Student.first(where={"planner": planner, "order": order})
+    students = current_user.api_client.Student.instances(where={"planner": planner}, sort={"planner_order": False})
 
     previous_student = None
     actual_student = None
     next_student = None
 
     try:
-        if (id_student + 1) > stations_count:
+        if (order_student + 1) > stations_count:
             previous_student = students[0]
         else:
-            previous_student = current_user.api_client.Student(id_student + 1)
+            previous_student = students[order_student]
     except:
         previous_student = None
 
     try:
-        actual_student = current_user.api_client.Student(id_student)
+        actual_student = students[order_student - 1]
     except:
         actual_student = None
 
     try:
-        if (id_student - 1) < 1:
+        if (order_student - 1) < 1:
             next_student = students[len(students) - 1]
         else:
-            next_student = current_user.api_client.Student(id_student - 1)
+            next_student = students[order_student - 2]
     except:
         next_student = None
 
-    student_exists = any(x.id == actual_student.id for x in students)
     student_answers = []
-    if student_exists:
-        student_answers = actual_student.answers
-
-    students_selector = [previous_student, actual_student, next_student]
-
-    qblocks = actual_station.qblocks()
     questions_array = []
-    for qblock in qblocks:
-        questions = qblock.questions()
-        for question in questions:
-            options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
-            for answer in student_answers:
-                for opt in options:
-                    if answer.id == opt.id:
-                        opt.checked = True
-                        break
+    qblocks = []
+    student_exists = False
+    if actual_student is not None:
+        student_exists = any(x.id == actual_student.id for x in students)
+        if student_exists:
+            student_answers = actual_student.answers
 
-            questions_array.append({'question': question, 'options': options})
+        qblocks = actual_station.qblocks()
+
+        for qblock in qblocks:
+            questions = qblock.questions()
+            for question in questions:
+                options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
+                for answer in student_answers:
+                    for opt in options:
+                        if answer.id == opt.id:
+                            opt.checked = True
+                            break
+
+                questions_array.append({'question': question, 'options': options})
 
     chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round.id
 
+    students_selector = [previous_student, actual_student, next_student]
     return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, shift=shift, round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
 
 
