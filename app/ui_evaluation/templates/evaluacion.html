@@ -114,13 +114,11 @@
             var socket = io.connect('{{ chrono_route }}');
 
             socket.on('connect', function () {
-                //$("#log").append('Estación {{ station.id }}: conectada a rueda {{ id_round }}<br>');
                 console.log('Estación {{ station.id }}: conectada a rueda {{ id_round }}')
             });
 
             socket.on('end_round', function(msg) {
                 $('#clock').css("color", "green").show('slow');
-                //$('#log').append("<span style='color:blue'>"+msg.data+"</span><br>");
                 console.log(msg.data)
             });
 
@@ -130,9 +128,8 @@
 
             socket.on('evento', function(msg) {
                 if (jQuery.inArray({{ station.id }}+"", msg.target.split(",")) >= 0) {
-                    //$('#log').append("<span style='color:green'>[" + msg.stage + "] " + msg.data + " => " + msg.target + "</span><br>");
                     console.log("[" + msg.stage + "] " + msg.data + " => " + msg.target)
-                    $("#myaudio").attr('src', '{{ url_for('static', filename='sounds/') }}'+msg.data)
+                    $("#myaudio").attr('src', '{{ url_for('static', filename='sounds/') }}'+msg.sound)
                     $('#myaudio').trigger('play');
                 }
             });
@@ -142,7 +139,6 @@
 
                 if (msg.stopped == 'S') {
                     $('#clock').css("color", "red");
-                    //$('#log').append("<span style='color:red'>"+instant(msg.minutes, msg.seconds)+" Crono parado</span><br>");
                     console.log(instant(msg.minutes, msg.seconds)+" Crono parado");
                 }
                 else
