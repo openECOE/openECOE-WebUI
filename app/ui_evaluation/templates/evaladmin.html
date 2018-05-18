@@ -29,7 +29,11 @@
                                             <td>{{ shift.shift.time_start }}</td>
                                             {% for round in shift.rounds %}
                                                 <td>
-                                                    <button><a href="{{ url_for('.evaluacion', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.shift.id, id_round=round.id, id_student=station.id) }}">Ir a evaluacion {{ round.round_code }}</a></button>
+                                                    <button>
+                                                        <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.shift.id, id_round=round.id, id_student=station.id) }}">
+                                                            Iniciar evaluación
+                                                        </a>
+                                                    </button>
                                                 </td>
                                             {% endfor %}
                                         </tr>
@@ -41,9 +45,6 @@
                     </div>
                 {% endfor %}
             </div>
-
-    {#                        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">{{ station.name }}</button>#}
-    {#                        <li><a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}">{{ station.name }}</a></li>#}
     </div>
 </body>
 {% endblock %}

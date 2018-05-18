@@ -13,18 +13,33 @@ def index():
     return render_template('eval_index.html', title='Home',  ecoes=ecoe)
 
 
-@bp.route('/ecoe/', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/round/<int:id_round>', methods=['GET'])
 @login_required
-def evaladmin(id_ecoe):
+def evaladmin(id_ecoe, id_station=None, id_round=None):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
-    station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
+    station = []
+
+    if id_station != None:
+        station.append(current_user.api_client.Station(id_station))
+    else:
+        station = current_user.api_client.Station.instances(where={"ecoe": ecoe})
+
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
     shifts_array = []
     uniques_rounds = []
     for shift in shifts:
-        planners = current_user.api_client.Planner.instances(where={"shift": shift})
+        planners_q = {"shift": shift}
+
+        if id_round != None:
+            planners_q.update({"round": id_round})
+
+        planners = current_user.api_client.Planner.instances(where=planners_q)
+
+
+
         rounds_array = []
         for planner in planners:
             round = current_user.api_client.Round(planner.round.id)
@@ -32,23 +47,33 @@ def evaladmin(id_ecoe):
             uniques_rounds.append(round.round_code)
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
+
     uniques_rounds = list(sorted(set(uniques_rounds)))
+
     return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds)
 
 
 @bp.route('/ecoe', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/student/<int:id_student>', methods=['GET'])
 @login_required
-def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
+def exam(id_ecoe, id_station, id_shift, id_round, id_student):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
-    stations_count = len(current_user.api_client.Station.instances())
-    shift = current_user.api_client.Shift(id_shift)
-    round = current_user.api_client.Round(id_round)
-    planner = current_user.api_client.Planner.instances(where={"shift": shift, "round": round})
-    students = []
-    if planner[0].students:
-        students = planner[0].students
+    stations_count = len(current_user.api_client.Station.instances(where={"ecoe": id_ecoe}))
+    # shift = current_user.api_client.Shift(id_shift)
+    # round = current_user.api_client.Round(id_round)
+    planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
+    shift = planner.shift
+    round = planner.round
+    # students = []
+    # if planner[0].students:
+    #     students = planner[0].students
+    #
+    #
+
+    students = planner.students
+
+    #current_user.api_client.Student.first(where={"planner": planner, "order": order})
 
     previous_student = None
     actual_student = None
@@ -58,7 +83,7 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
         if (id_student + 1) > stations_count:
             previous_student = students[0]
         else:
-            previous_student = current_user.api_client.Student(id_student + 1)
+            previous_student = current_user.api_client.Student.first(id_student + 1)
     except:
         previous_student = None
 
@@ -96,7 +121,7 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
 
             questions_array.append({'question': question, 'options': options})
 
-    return render_template('evaluacion.html', ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
+    return render_template('exam.html', ecoe=ecoe, station=actual_station, shift=shift, round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
