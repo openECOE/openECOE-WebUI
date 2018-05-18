@@ -30,6 +30,8 @@ def infoEcoe(id_ecoe):
 
     return render_template('info-ecoe.html', ecoe=ecoe, id_ecoe=id_ecoe, areas_length=areas._total_count, stations=stations, students_length=students._total_count)
 
+
+
 @bp.route('/ecoe/<id_ecoe>/area/', methods=['GET', 'POST', 'PATCH'])
 @login_required
 def areas(id_ecoe):

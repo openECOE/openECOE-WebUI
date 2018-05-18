@@ -1,2 +1,0 @@
-environment_config:
-  FLASK_APP: "{{project_path}}/{{project_main_controller}}.py"
