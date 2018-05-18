@@ -19,7 +19,7 @@
                                     <tr>
                                         <th scope="col">Turno</th>
                                         {% for round in uniques_rounds %}
-                                            <th scope="col">Ronda {{ round }}</th>
+                                            <th scope="col">Ronda {{ round }} / <a href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=outside_rounds[round]) }}" role="link">Estación exterior</a></th>
                                         {% endfor %}
                                     </tr>
                                 </thead>

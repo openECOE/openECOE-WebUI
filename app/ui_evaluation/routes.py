@@ -30,6 +30,8 @@ def evaladmin(id_ecoe, id_station=None, id_round=None):
 
     shifts_array = []
     uniques_rounds = []
+    outside_rounds = {}
+
     for shift in shifts:
         planners_q = {"shift": shift}
 
@@ -43,14 +45,16 @@ def evaladmin(id_ecoe, id_station=None, id_round=None):
         rounds_array = []
         for planner in planners:
             round = current_user.api_client.Round(planner.round.id)
+
+            outside_rounds.update({round.round_code: round.id})
+
             rounds_array.append(round)
             uniques_rounds.append(round.round_code)
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
 
     uniques_rounds = list(sorted(set(uniques_rounds)))
-
-    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds)
+    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds, outside_rounds=outside_rounds)
 
 
 @bp.route('/ecoe', methods=['GET'])
@@ -78,7 +82,7 @@ def exam(id_ecoe, id_station, id_shift, id_round, id_student):
         if (id_student + 1) > stations_count:
             previous_student = students[0]
         else:
-            previous_student = current_user.api_client.Student.first(id_student + 1)
+            previous_student = current_user.api_client.Student(id_student + 1)
     except:
         previous_student = None
 
@@ -116,7 +120,20 @@ def exam(id_ecoe, id_station, id_shift, id_round, id_student):
 
             questions_array.append({'question': question, 'options': options})
 
-    return render_template('exam.html', ecoe=ecoe, station=actual_station, shift=shift, round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
+    chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round.id
+
+    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, id_shift=shift, id_round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
+
+
+@bp.route('/ecoe/<int:ecoe_id>/round/<int:round_id>/outside')
+@login_required
+def outside_station(ecoe_id, round_id):
+    ecoe = current_user.api_client.Ecoe(ecoe_id)
+    round = current_user.api_client.Round(round_id)
+
+    chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round_id
+
+    return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, round=round, station_id=0)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
