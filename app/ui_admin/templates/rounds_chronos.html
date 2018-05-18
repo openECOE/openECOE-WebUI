@@ -85,7 +85,7 @@
 
                     if (msg.stopped == 'S') {
                         $('#clock{{ r['id'] }}').css("color", "red");
-                        console.log(instant(msg.minutes, msg.seconds)+" Crono parado")
+                        console.log("[" + msg.minutes + ":" + msg.seconds + "] Crono parado");
                     }
                     else
                         $('#clock{{ r['id'] }}').css("color", "black");
@@ -98,7 +98,7 @@
                         url: '{{ actions_url['play'] }}/{{ r['id'] }}',
 
                         success: function(res) {
-                            console.log(res)
+                            console.log(res);
                         }
                     });
 
