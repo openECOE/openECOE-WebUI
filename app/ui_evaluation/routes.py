@@ -23,17 +23,22 @@ def evaladmin(id_ecoe):
 
     shifts_array = []
     uniques_rounds = []
+    outside_rounds = {}
+
     for shift in shifts:
         planners = current_user.api_client.Planner.instances(where={"shift": shift})
         rounds_array = []
         for planner in planners:
             round = current_user.api_client.Round(planner.round.id)
+
+            outside_rounds.update({round.round_code: round.id})
+
             rounds_array.append(round)
             uniques_rounds.append(round.round_code)
         shifts_array.append({'shift': shift, 'rounds': rounds_array})
 
     uniques_rounds = list(sorted(set(uniques_rounds)))
-    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds)
+    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds, outside_rounds=outside_rounds)
 
 
 @bp.route('/ecoe', methods=['GET'])
@@ -95,17 +100,15 @@ def evaluacion(id_ecoe, id_station, id_shift, id_round, id_student):
     return render_template('evaluacion.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, id_shift=shift.id, id_round=round.id, qblock=qblocks, questions=questions_array, students=students)
 
 
-@bp.route('/ecoe/<int:ecoe_id>/shift/<int:shift_id>/round/<int:round_id>/outside/<int:station_id>')
+@bp.route('/ecoe/<int:ecoe_id>/round/<int:round_id>/outside')
 @login_required
-def outside_station(ecoe_id, shift_id, round_id, station_id):
+def outside_station(ecoe_id, round_id):
     ecoe = current_user.api_client.Ecoe(ecoe_id)
-    station = current_user.api_client.Station(station_id)
-    shift = current_user.api_client.Shift(shift_id)
     round = current_user.api_client.Round(round_id)
 
     chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round_id
 
-    return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, shift=shift, round=round, station=station)
+    return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, round=round, station_id=0)
 
 
 @bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
