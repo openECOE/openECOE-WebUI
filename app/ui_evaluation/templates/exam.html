@@ -1,9 +1,14 @@
 {% extends "bootstrap/base.html" %}
+{% from 'macros.html' import info_chrono_station, client_eval_socket %}
+
 {% block content %}
 <body>
 {% set actual_student = students[1] %}
 
 <div class="container">
+
+
+
     <div class="row">
         <div class="col-xs-4 text-left">
             <h3>{{ ecoe.name }}</h3>
@@ -15,7 +20,7 @@
 
     <div class="row">
         <div class="col-xs-8">
-            Chrono
+            {{ info_chrono_station() }}
         </div>
         <div class="col-xs-4 text-right">
             <table class="table table-condensed text-center">
@@ -128,6 +133,9 @@
 
 {% block scripts %}
     {{ super() }}
+
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
+
     <script>
         var csrf_token = "{{ csrf_token() }}";
 
@@ -177,6 +185,9 @@
         }
 
         $(document).ready(function() {
+
+            {{ client_eval_socket(chrono_route, station.id, id_round) }}
+
             setupDeselectEvent(true);
 
             $('input[type="radio"]').on('deselect', function() {

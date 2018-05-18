@@ -122,7 +122,7 @@ def exam(id_ecoe, id_station, id_shift, id_round, id_student):
 
     chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round.id
 
-    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, id_shift=shift, id_round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
+    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, shift=shift, round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
 
 
 @bp.route('/ecoe/<int:ecoe_id>/round/<int:round_id>/outside')
