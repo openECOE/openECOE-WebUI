@@ -5,6 +5,7 @@ from flask_bootstrap import Bootstrap
 from potion_client import Client
 from flask_babel import Babel
 from flask_wtf import CSRFProtect
+from flask_moment import Moment
 from config import Config
 
 login_manager = LoginManager()
@@ -12,6 +13,8 @@ login_manager.login_view = 'auth.login'
 bootstrap = Bootstrap()
 babel = Babel()
 csrf = CSRFProtect()
+moment = Moment()
+
 
 
 def create_app(config_class=Config):
@@ -22,6 +25,7 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     babel.init_app(app)
     csrf.init_app(app)
+    moment.init_app(app)
 
     from app.ui_admin import bp as ui_admin_bp
     app.register_blueprint(ui_admin_bp, url_prefix='/admin')

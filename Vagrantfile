@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
     config.vm.network "private_network", ip: "192.168.11.22"
 
     config.vm.provision "ansible_local" do |ansible|
-        #ansible.verbose = "vvv"
+        ansible.verbose = "vvv"
         ansible.limit = "webui"
         ansible.provisioning_path = "/tmp/deploy"
         #ansible.galaxy_role_file = "requeriments.yml"

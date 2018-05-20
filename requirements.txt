@@ -20,3 +20,4 @@ potion-client
 flask_babel
 pip==9.0.2
 python-dotenv
+flask-moment
