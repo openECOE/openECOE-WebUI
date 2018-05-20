@@ -27,10 +27,14 @@
                         {% for planner in round.planners %}
                             <div  class="col col-xs-12 col-sm-4 col-md-3">
                                 <p>
-                                    <a class="btn btn-info btn-lg" role="button"
+
+                                    <a class="btn btn-lg {% if planner.shift.time_start > now %}btn-warning{% else %}btn-success{% endif %}"
+                                       role="button"
                                        href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=round.id) }}">
-                                        {{ planner.shift.time_start }}
+                                        <span class="col col-xs-12">{{ moment(planner.shift.time_start).format('DD/MM/YYYY HH:MM') }}</span>
+                                        <span  class="col col-xs-12 small">{{ moment(planner.shift.time_start).fromTime(now)}}</span>
                                     </a>
+
                                 </p>
                             </div>
                         {% endfor %}
