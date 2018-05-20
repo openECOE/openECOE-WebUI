@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <button id="start" class="btn btn-success btn-lg" >Iniciar</button>
+                <button id="pauseall" class="btn btn-warning btn-lg" >Pausar todo</button>
+                <button id="playall" class="btn btn-primary btn-lg" >Continuar todo</button>
+            </div>
+        </div>
+
+        {% for r in rounds %}
+
+            <div class="row">
+
+                <div class="col-sm-2">
+                    <button type="button" id="play{{ r['id'] }}" class="btn btn-primary">Continuar</button>
+                </div>
+
+                <div class="col-sm-2">
+                    <button type="button" id="pause{{ r['id'] }}" class="btn btn-warning">Pausar</button>
+                </div>
+
+                <div class="col-sm-8">
+                    <h2>Rueda {{ r['id'] }} (vuelta <span id="vuelta{{ r['id'] }}"></span>): <span id="clock{{ r['id'] }}">--:--</span></h2>
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
+
+    <script>
+
+        $(document).ready(function() {
+
+            $("#start").click(function (event) {
+
+                    $.ajax({
+                        url: '{{ actions_url['start'] }}',
+
+                        success: function(res) {
+                            console.log(res)
+                        }
+                    });
+            });
+
+            $("#pauseall").click(function (event) {
+
+                    $.ajax({
+                        url: '{{ actions_url['pause'] }}',
+
+                        success: function(res) {
+                            console.log(res)
+                        }
+                    });
+
+            });
+
+            $("#playall").click(function (event) {
+
+                    $.ajax({
+                        url: '{{ actions_url['play'] }}',
+
+                        success: function(res) {
+                            console.log(res)
+                        }
+                    });
+            });
+
+            {% for r in rounds %}
+
+                var socket{{ r['id'] }} = io.connect('{{ r['chrono_route'] }}');
+
+                socket{{ r['id'] }}.on('connect', function () {
+                    console.log('Conectado para monitorizacion de rueda {{ r['id'] }}')
+                });
+
+                socket{{ r['id'] }}.on('end_round', function(msg) {
+                    $('#clock{{ r['id'] }}').css("color", "green");
+                    console.log(msg.data);
+                });
+
+                socket{{ r['id'] }}.on('init_stage', function(msg) {
+                    $('#clock{{ r['id'] }}').fadeOut('fast').fadeIn('fast', function () {
+                        $('#vuelta{{ r['id'] }}').text(msg.num_rerun);
+                    });
+                });
+
+                socket{{ r.id }}.on('aborted', function(msg) {
+                    $('#clock{{ r.id }}').css("color", "red");
+                    $('#clock{{ r.id }}').text("EVALUACIÓN ABORTADA");
+                });
+
+                socket{{ r['id'] }}.on('tic_tac', function(msg) {
+                    $('#clock{{ r['id'] }}').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);
+
+                    if (msg.stopped == 'S') {
+                        $('#clock{{ r['id'] }}').css("color", "red");
+                        console.log("[" + msg.minutes + ":" + msg.seconds + "] Crono parado");
+                    }
+                    else
+                        $('#clock{{ r['id'] }}').css("color", "black");
+                });
+
+                $("#play{{ r['id'] }}").click(function (event) {
+
+                    $.ajax({
+                        url: '{{ actions_url['play'] }}/{{ r['id'] }}',
+
+                        success: function(res) {
+                            console.log(res);
+                        }
+                    });
+
+                });
+
+                $("#pause{{ r['id'] }}").click(function (event) {
+
+                    $.ajax({
+                        url: '{{ actions_url['pause'] }}/{{ r['id'] }}',
+
+                        success: function(res) {
+                            console.log(res)
+                        }
+                    });
+
+                });
+
+            {% endfor %}
+        });
+
+    </script>
+{% endblock %}

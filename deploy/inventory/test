@@ -1,5 +1,0 @@
-[apiservers]
-test.www.openecoe.com
-
-[test:children]
-apiservers

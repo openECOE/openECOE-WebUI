@@ -1,0 +1,42 @@
+{% extends "eval_base.html" %}
+{% block content %}
+    <div class="container">
+        <h2>
+            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}" role="link">
+                {{ ecoe.name }}
+            </a>
+        </h2>
+        {% for round in rounds %}
+            <div class="row">
+                <h3>
+                    <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id) }}" role="link">
+                        {{ round.description }}
+                    </a>
+                    /
+                    <a href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=round.id) }}" role="link">
+                        Estación exterior
+                    </a>
+                </h3>
+                {% for station in stations %}
+                    <div class="row">
+                        <h4>
+                            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id, id_station=station.id) }}">
+                                {{ station.order }} - {{ station.name }}
+                            </a>
+                        </h4>
+                        {% for planner in round.planners %}
+                            <div  class="col col-xs-12 col-sm-4 col-md-3">
+                                <p>
+                                    <a class="btn btn-info btn-lg" role="button"
+                                       href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=round.id) }}">
+                                        {{ planner.shift.time_start }}
+                                    </a>
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

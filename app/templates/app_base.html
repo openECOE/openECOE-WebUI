@@ -1,5 +1,11 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% block head %}
+    {{ super() }}
+    {{ moment.include_jquery(local_js=url_for('static', filename='js/jquery-3.3.1.min.js')) }}
+    {{ moment.include_moment(local_js=url_for('static', filename='js/moment.min.js')) }}
+{% endblock %}
+
 {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="#">Ecoe</a>
