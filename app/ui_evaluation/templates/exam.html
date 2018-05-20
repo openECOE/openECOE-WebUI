@@ -1,12 +1,8 @@
-{% extends "bootstrap/base.html" %}
+{% extends "app_base.html" %}
 {% from 'macros.html' import info_chrono_station, client_eval_socket %}
 
 {% block content %}
-    <body>
-
     <div class="container">
-
-
         <div class="row">
             <div class="col-xs-4 text-left">
                 <h3>{{ ecoe.name }}</h3>
@@ -76,20 +72,23 @@
                 </div>
             </div>
         {% else %}
-            <table class="table table-striped table-hover">
-                <thead>
-                <tr>
-                    <th class="col-xs-1">Num</th>
-                    <th class="col-xs-7">Enunciado</th>
-                    <th class="col-xs-2">Referencia</th>
-                    <th class="col-xs-2">Opciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for qblock in qblocks %}
+            {% for qblock in qblocks %}
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th class="col-xs-1">
+                            <h4><span class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span></h4>
+                            <span>Num</span>
+                        </th>
+                        <th class="col-xs-7">Enunciado</th>
+                        <th class="col-xs-2">Referencia</th>
+                        <th class="col-xs-2">Opciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {% for question in qblock.questions %}
                         <tr>
-                            <td>{{ loop.index }}</td>
+                            <td>{{ question.order }}</td>
                             <td>{{ question.description }}</td>
                             <td>{{ question.reference }}</td>
                             <td>
@@ -105,41 +104,41 @@
                                     </div>
                                 {% else %}
                                     <div class="row form-check form-check-inline">
-                                    {% for option in question.options %}
-                                        <h4 class="col col-xs-12 col-sm-{{ (12 / question.options|length)|int }}">
-                                            {% if question.question_type == 'CH' %}
-                                                <label class="form-check-label">
-                                                    <input type="checkbox"
-                                                           class="form-check-input"
-                                                           name="checkbox{{ question.id }}"
-                                                           value="{{ option.id }}"
-                                                           {% if option in student.answers %}checked{% endif %}
-                                                           onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})"/>
-                                                    {{ option.label }}
-                                                </label>
+                                        {% for option in question.options %}
+                                            <h4 class="col col-xs-12 col-sm-{{ (12 / question.options|length)|int }}">
+                                                {% if question.question_type == 'CH' %}
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox"
+                                                               class="form-check-input"
+                                                               name="checkbox{{ question.id }}"
+                                                               value="{{ option.id }}"
+                                                               {% if option in student.answers %}checked{% endif %}
+                                                               onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})"/>
+                                                        {{ option.label }}
+                                                    </label>
 
-                                            {% elif question.question_type == 'RB' %}
-                                                <label class="form-check-label">
-                                                    <input type="radio"
-                                                           class="form-check-input"
-                                                           name="radiobutton{{ question.id }}"
-                                                           value="{{ option.id }}"
-                                                           placeholder="{{ student.id }}"
-                                                           {% if option in student.answers %}checked{% endif %}
-                                                           onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})">
-                                                    {{ option.label }}
-                                                </label>
-                                            {% endif %}
-                                        </h4>
-                                    {% endfor %}
+                                                {% elif question.question_type == 'RB' %}
+                                                    <label class="form-check-label">
+                                                        <input type="radio"
+                                                               class="form-check-input"
+                                                               name="radiobutton{{ question.id }}"
+                                                               value="{{ option.id }}"
+                                                               placeholder="{{ student.id }}"
+                                                               {% if option in student.answers %}checked{% endif %}
+                                                               onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})">
+                                                        {{ option.label }}
+                                                    </label>
+                                                {% endif %}
+                                            </h4>
+                                        {% endfor %}
                                     </div>
                                 {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
-                {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            {% endfor %}
         {% endif %}
         <div class="col-md-offset-8 col-xs-12 col-md-4 text-right">
             <a class="btn btn-info btn-lg btn-block"
@@ -150,10 +149,11 @@
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
         </div>
-
     </div>
-    </body>
+
+    {{super()}}
 {% endblock %}
+
 
 {% block scripts %}
     {{ super() }}

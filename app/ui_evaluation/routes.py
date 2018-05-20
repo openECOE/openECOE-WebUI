@@ -6,6 +6,7 @@ from flask import request
 from datetime import datetime
 import pytz
 import sys, operator
+from collections import defaultdict
 
 @bp.after_request
 def set_response_headers(response):
@@ -32,6 +33,8 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
     stations = []
     rounds = []
 
+    now = datetime.now(pytz.utc)
+
     if id_station != None:
         stations.append(current_user.api_client.Station(id_station))
     else:
@@ -42,12 +45,11 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
     else:
         rounds = current_user.api_client.Round.instances(where={"ecoe": ecoe})
 
-    now = datetime.now(pytz.utc)
+    shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
-    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now)
+    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts)
 
 
-@bp.route('/ecoe', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>', methods=['GET'])
 @login_required
