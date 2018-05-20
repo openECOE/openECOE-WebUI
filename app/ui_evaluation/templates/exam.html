@@ -10,9 +10,18 @@
         <div class="row">
             <div class="col-xs-4 text-left">
                 <h3>{{ ecoe.name }}</h3>
+                <p>
+                    <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=planner.round.id, id_station=station.id) }}">
+                        < Volver atrás
+                    </a>
+                </p>
             </div>
             <div class="col-xs-8 text-right">
-                <h2>{{ station.order }} - {{ station.name }}</h2>
+                <h2>
+                    <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=planner.round.id, id_station=station.id) }}">
+                        Estación {{ station.order }} - {{ station.name }}
+                    </a>
+                </h2>
             </div>
         </div>
 
@@ -36,18 +45,18 @@
                         <td>{{ planner.round.round_code }}</td>
                         <td class="row">
                             <div class="col-xs-12 col-md-5">
-                                <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=previous_student) }}">
-                                    <button type="button" class="btn btn-warning">
-                                        <span class="glyphicon glyphicon-chevron-left"></span>
-                                    </button>
+                                <a class="btn btn-warning btn-block"
+                                   role="button"
+                                   href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=previous_student) }}">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
                                 </a>
                             </div>
                             <div class="col-xs-12 col-md-2 text-center">{{ order_student }}</div>
                             <div class="col-xs-12 col-md-5">
-                                <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
-                                    <button type="button" class="btn btn-info">
-                                        <span class="glyphicon glyphicon-chevron-right"></span>
-                                    </button>
+                                <a class="btn btn-info btn-block"
+                                   role="button"
+                                   href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
                                 </a>
                             </div>
                         </td>
@@ -133,11 +142,12 @@
             </table>
         {% endif %}
         <div class="col-md-offset-8 col-xs-12 col-md-4 text-right">
-            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
-                <button type="button" class="btn btn-info btn-lg">
-                    Siguiente alumno
-                    <span class="glyphicon glyphicon-chevron-right"></span>
-                </button>
+            <a class="btn btn-info btn-lg btn-block"
+               role="button"
+               href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
+
+                Siguiente alumno
+                <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
         </div>
 

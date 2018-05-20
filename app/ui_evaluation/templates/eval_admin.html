@@ -12,11 +12,13 @@
                     <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id) }}" role="link">
                         {{ round.description }}
                     </a>
-                    /
-                    <a href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=round.id) }}" role="link">
+                    <a class="btn btn-info btn-lg"
+                       href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=round.id) }}" target="_blank"
+                       role="button">
                         Estación exterior
                     </a>
                 </h3>
+
                 {% for station in stations %}
                     <div class="row">
                         <h4>
@@ -31,8 +33,8 @@
                                     <a class="btn btn-lg {% if planner.shift.time_start > now %}btn-warning{% else %}btn-success{% endif %}"
                                        role="button"
                                        href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=round.id) }}">
-                                        <span class="col col-xs-12">{{ moment(planner.shift.time_start).format('DD/MM/YYYY HH:MM') }}</span>
-                                        <span  class="col col-xs-12 small">{{ moment(planner.shift.time_start).fromTime(now)}}</span>
+                                        <span class="col col-xs-12">{{ planner.shift.shift_code }} - {{ moment(planner.shift.time_start).format('HH:mm') }}</span>
+                                        <span  class="col col-xs-12 small">{{ moment(planner.shift.time_start).format('DD/MM/YYYY') }} {{ moment(planner.shift.time_start).fromTime(now)}}</span>
                                     </a>
 
                                 </p>

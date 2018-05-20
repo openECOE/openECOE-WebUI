@@ -10,6 +10,7 @@ from config import Config
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
+login_manager.session_protection = 'strong'
 bootstrap = Bootstrap()
 babel = Babel()
 csrf = CSRFProtect()
