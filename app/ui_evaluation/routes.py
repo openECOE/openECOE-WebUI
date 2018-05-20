@@ -4,6 +4,7 @@ from app.ui_evaluation import bp
 from potion_client.exceptions import ItemNotFound
 from flask import request
 from datetime import datetime
+import pytz
 import sys, operator
 
 @bp.after_request
@@ -41,7 +42,9 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
     else:
         rounds = current_user.api_client.Round.instances(where={"ecoe": ecoe})
 
-    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds)
+    now = datetime.now(pytz.utc)
+
+    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now)
 
 
 @bp.route('/ecoe', methods=['GET'])
@@ -104,7 +107,7 @@ def send_answer(id_student, id_option):
             student.add_answers(option)
             return jsonify({'status': 204})
         except:
-            flash('Error al borrar')
+            flash('Error al guardar')
             print('Error')
             return jsonify({'status': 404})
 

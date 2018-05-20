@@ -17,10 +17,10 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-8">
+            <div class="col-xs-12 col-md-6">
                 {{ info_chrono_station() }}
             </div>
-            <div class="col-xs-4 text-right">
+            <div class="col-xs-12 col-md-6 text-right">
                 <table class="table table-condensed text-center">
                     <thead>
                     <tr>
@@ -31,20 +31,25 @@
                     </thead>
                     <tbody>
                     <tr class="lead">
+
                         <td>{{ planner.shift.shift_code }}</td>
                         <td>{{ planner.round.round_code }}</td>
-                        <td>
-                            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=previous_student) }}">
-                                <button type="button" class="btn btn-default btn-sm btn-warning">
-                                    <span class="glyphicon glyphicon-chevron-left"></span>
-                                </button>
-                            </a>
-                            {{ order_student }}
-                            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
-                                <button type="button" class="btn btn-default btn-sm btn-info">
-                                    <span class="glyphicon glyphicon-chevron-right"></span>
-                                </button>
-                            </a>
+                        <td class="row">
+                            <div class="col-xs-12 col-md-5">
+                                <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=previous_student) }}">
+                                    <button type="button" class="btn btn-warning">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="col-xs-12 col-md-2 text-center">{{ order_student }}</div>
+                            <div class="col-xs-12 col-md-5">
+                                <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
+                                    <button type="button" class="btn btn-info">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                    </button>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
@@ -53,7 +58,7 @@
         </div>
 
         {% if not student %}
-            <div class="col-xs-offset-4 col-xs-4">
+            <div class="col-md-offset-4 col-xs-12 col-md-4">
                 <div class="panel panel-danger">
                     <div class="panel-heading">Turno sin Alumno</div>
                     <div class="panel-body">Este turno no dispone de alumno asignado, por favor espere al siguiente
@@ -90,34 +95,35 @@
                                         </select>
                                     </div>
                                 {% else %}
+                                    <div class="row form-check form-check-inline">
                                     {% for option in question.options %}
-                                        <div class="form-check form-check-inline">
-                                            {#                        {% set option_loop = loop %}#}
+                                        <h4 class="col col-xs-12 col-sm-{{ (12 / question.options|length)|int }}">
                                             {% if question.question_type == 'CH' %}
-                                                <input type="checkbox"
-                                                       class="form-check-input"
-                                                       name="checkbox{{ question.id }}"
-                                                       id="checkbox{{ question.id }}{{ option.id }}"
-                                                       value="{{ option.id }}"
-                                                       {% if option in student.answers %}checked{% endif %}
-                                                       onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})"/>
-                                                <label class="form-check-label" for="checkbox
-                                                {{ question.id }}{{ option.id }}">{{ option.label }}</label>
+                                                <label class="form-check-label">
+                                                    <input type="checkbox"
+                                                           class="form-check-input"
+                                                           name="checkbox{{ question.id }}"
+                                                           value="{{ option.id }}"
+                                                           {% if option in student.answers %}checked{% endif %}
+                                                           onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})"/>
+                                                    {{ option.label }}
+                                                </label>
 
                                             {% elif question.question_type == 'RB' %}
-                                                <input type="radio"
-                                                       class="form-check-input"
-                                                       name="radiobutton{{ question.id }}"
-                                                       id="radiobutton{{ question.id }}{{ option.id }}"
-                                                       value="{{ option.id }}"
-                                                       placeholder="{{ student.id }}"
-                                                       {% if option in student.answers %}checked{% endif %}
-                                                       onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})">
-                                                <label class="form-check-label" for="radiobutton
-                                                {{ question.id }}{{ option.id }}">{{ option.label }}</label>
+                                                <label class="form-check-label">
+                                                    <input type="radio"
+                                                           class="form-check-input"
+                                                           name="radiobutton{{ question.id }}"
+                                                           value="{{ option.id }}"
+                                                           placeholder="{{ student.id }}"
+                                                           {% if option in student.answers %}checked{% endif %}
+                                                           onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})">
+                                                    {{ option.label }}
+                                                </label>
                                             {% endif %}
-                                        </div>
+                                        </h4>
                                     {% endfor %}
+                                    </div>
                                 {% endif %}
                             </td>
                         </tr>
@@ -126,6 +132,14 @@
                 </tbody>
             </table>
         {% endif %}
+        <div class="col-md-offset-8 col-xs-12 col-md-4 text-right">
+            <a href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
+                <button type="button" class="btn btn-info btn-lg">
+                    Siguiente alumno
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </button>
+            </a>
+        </div>
 
     </div>
     </body>
