@@ -96,7 +96,7 @@
                                     <div class="input-group">
                                         <select class="custom-select" id="selector{{ question.id }}"
                                                 onchange="postAnswer({{ student.id }}, this.value)">
-                                            {% for option in question.options %}
+                                            {% for option in question.options|sort(attribute='order') %}
                                                 <option value="{{ option.id }}"
                                                         {% if option in student.answers %}selected{% endif %}>{{ option.label }}</option>
                                             {% endfor %}
@@ -104,7 +104,7 @@
                                     </div>
                                 {% else %}
                                     <div class="row form-check form-check-inline">
-                                        {% for option in question.options %}
+                                        {% for option in question.options|sort(attribute='order') %}
                                             <h4 class="col col-xs-12 col-sm-{{ (12 / question.options|length)|int }}">
                                                 {% if question.question_type == 'CH' %}
                                                     <label class="form-check-label">
