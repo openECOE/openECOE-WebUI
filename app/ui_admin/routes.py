@@ -23,6 +23,7 @@ def roundsChronos(id_ecoe):
         for r in ecoe.rounds
     ]
 
+    # TODO: Call chronos API from inside app
     actions_chrono_url = {
         'start': current_app.config.get('CHRONO_ROUTE') + "/start",
         'play': current_app.config.get('CHRONO_ROUTE') + "/play",

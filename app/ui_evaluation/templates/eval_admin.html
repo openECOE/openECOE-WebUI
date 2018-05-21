@@ -1,0 +1,63 @@
+{% extends "eval_base.html" %}
+{% block content %}
+    <div class="container">
+        <h2>
+            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}" role="link">
+                {{ ecoe.name }}
+            </a>
+        </h2>
+        {% for day, day_group in shifts | groupby('time_start.day') %}
+            <div class="row">
+                <p>
+                    <button class="btn btn-primary btn-lg" type="button" data-toggle="collapse"
+                            data-target="#day_{{ day }}"
+                            aria-expanded="false" aria-controls="openday_{{ day }}">
+                        {{ moment(day_group[0].time_start).format('LL') }}
+                    </button>
+                </p>
+            </div>
+            <div class="collapse in" id="day_{{ day }}">
+                {% for round in rounds %}
+                    <div class="row">
+                        <h3 class="lead">
+                            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id) }}"
+                               role="link">
+                                {{ round.description }}
+                            </a>
+                            <a class="btn btn-info btn-lg"
+                               href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=round.id) }}"
+                               target="_blank"
+                               role="button">
+                                Estación exterior
+                            </a>
+                        </h3>
+
+                        {% for station in stations %}
+                            <div class="row">
+                                <h4 class="lead">
+                                    <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id, id_station=station.id) }}">
+                                        {{ station.order }} - {{ station.name }}
+                                    </a>
+                                </h4>
+                                {% for shift in day_group %}
+                                    <div class="col col-xs-12 col-sm-4 col-md-3">
+                                        <p>
+                                            <a class="btn btn-lg {% if shift.time_start > now %}btn-warning{% else %}btn-success{% endif %}"
+                                               role="button"
+                                               href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id) }}">
+                                                <span class="col col-xs-12">{{ shift.shift_code }} - {{ moment(shift.time_start).format('HH:mm') }}</span>
+                                                <span class="col-xs-12 small">{{ moment(shifts[0].time_start).fromTime(now) }}</span>
+                                            </a>
+
+                                        </p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% endfor %}
+    </div>
+{% endblock %}

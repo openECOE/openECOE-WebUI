@@ -1,0 +1,36 @@
+/*
+ * Footer
+ *
+ * Separated section of content at the bottom of all pages, save the homepage.
+ */
+
+.openecoe-footer {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  margin-top: 100px;
+  color: #99979c;
+  text-align: center;
+  background-color: #2a2730;
+}
+.openecoe-footer a {
+  color: #fff;
+}
+.openecoe-footer-links {
+  padding-left: 0;
+  margin-bottom: 20px;
+}
+.openecoe-footer-links li {
+  display: inline-block;
+}
+.openecoe-footer-links li + li {
+  margin-left: 15px;
+}
+
+@media (min-width: 768px) {
+  .openecoe-footer {
+    text-align: left;
+  }
+  .openecoe-footer p {
+    margin-bottom: 0;
+  }
+}
