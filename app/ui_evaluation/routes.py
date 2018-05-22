@@ -60,9 +60,6 @@ def exam(id_ecoe, id_station, id_shift, id_round, order_student = None):
 
     qblocks = current_user.api_client.Qblock.instances(where={"station": actual_station}, sort={"order": False})
 
-    for qblock in qblocks:
-        qblock.questions = sorted(qblock.questions, key=operator.attrgetter('order'))
-
     stations_count = len(ecoe.stations)
 
     if order_student is None:
