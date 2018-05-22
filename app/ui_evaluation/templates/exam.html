@@ -190,24 +190,11 @@
             });
         }
 
-        function setupDeselectEvent() {
-            var selected = {};
-            $('input[type="radio"]').on('click', function () {
-                if (this.name in selected && this !== selected[this.name])
-                    $(selected[this.name]).trigger("deselect");
-                selected[this.name] = this;
-            });
-        }
 
         $(document).ready(function () {
 
             {{ client_eval_socket(chrono_route, station.id, planner.round.id) }}
 
-            setupDeselectEvent(true);
-
-            $('input[type="radio"]').on('deselect', function () {
-                deleteAnswer(this.placeholder, this.value);
-            });
         });
 
         function sendAnswer(htmlElement, id_student, id_option) {
