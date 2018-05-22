@@ -3,7 +3,17 @@ from flask_login import login_required, current_user
 from app.ui_evaluation import bp
 from potion_client.exceptions import ItemNotFound
 from flask import request
-import sys
+from datetime import datetime
+import pytz
+import sys, operator
+from collections import defaultdict
+
+@bp.after_request
+def set_response_headers(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @bp.route('/')
 @bp.route('/index')
@@ -14,115 +24,67 @@ def index():
 
 
 @bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/round/<int:id_round>', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>', methods=['GET'])
-@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/round/<int:id_round>', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/round/<int:id_round>/station/<int:id_station>', methods=['GET'])
 @login_required
-def evaladmin(id_ecoe, id_station=None, id_round=None):
+def evaladmin(id_ecoe, id_round=None, id_station=None):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
-    station = []
+    stations = []
+    rounds = []
+
+    now = datetime.now(pytz.utc)
 
     if id_station != None:
-        station.append(current_user.api_client.Station(id_station))
+        stations.append(current_user.api_client.Station(id_station))
     else:
-        station = current_user.api_client.Station.instances(where={"ecoe": ecoe}, sort={"name": False})
+        stations = current_user.api_client.Station.instances(where={"ecoe": ecoe}, sort={"order": False})
+
+    if id_round != None:
+        rounds.append(current_user.api_client.Round(id_round))
+    else:
+        rounds = current_user.api_client.Round.instances(where={"ecoe": ecoe})
 
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
-    shifts_array = []
-    uniques_rounds = []
-    outside_rounds = {}
-
-    for shift in shifts:
-        planners_q = {"shift": shift}
-
-        if id_round != None:
-            planners_q.update({"round": id_round})
-
-        planners = current_user.api_client.Planner.instances(where=planners_q)
+    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts)
 
 
-
-        rounds_array = []
-        for planner in planners:
-            round = current_user.api_client.Round(planner.round.id)
-
-            outside_rounds.update({round.round_code: round.id})
-
-            rounds_array.append(round)
-            uniques_rounds.append(round.round_code)
-        shifts_array.append({'shift': shift, 'rounds': rounds_array})
-
-
-    uniques_rounds = list(sorted(set(uniques_rounds)))
-    return render_template('evaladmin.html', ecoe=ecoe, id_ecoe=id_ecoe, stations=station, planner=shifts_array, uniques_rounds=uniques_rounds, outside_rounds=outside_rounds)
-
-
-@bp.route('/ecoe', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>', methods=['GET'])
 @login_required
-def exam(id_ecoe, id_station, id_shift, id_round, order_student):
+def exam(id_ecoe, id_station, id_shift, id_round, order_student = None):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
-    stations = current_user.api_client.Station.instances(where={"ecoe": id_ecoe}, sort={"name": False})
-    stations_count = len(stations)
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
-    shift = planner.shift
-    round = planner.round
 
-    students = current_user.api_client.Student.instances(where={"planner": planner}, sort={"planner_order": False})
+    qblocks = current_user.api_client.Qblock.instances(where={"station": actual_station}, sort={"order": False})
 
-    previous_student = None
-    actual_student = None
-    next_student = None
+    for qblock in qblocks:
+        qblock.questions = sorted(qblock.questions, key=operator.attrgetter('order'))
 
-    try:
-        if (order_student + 1) > stations_count:
-            previous_student = students[0]
-        else:
-            previous_student = students[order_student]
-    except:
-        previous_student = None
+    stations_count = len(ecoe.stations)
+
+    if order_student is None:
+        order_student = actual_station.order
 
     try:
-        actual_student = students[order_student - 1]
-    except:
-        actual_student = None
+        student = current_user.api_client.Student.first(where={"planner": planner, "planner_order": order_student})
+    except ItemNotFound:
+        student = None
 
-    try:
-        if (order_student - 1) < 1:
-            next_student = students[len(students) - 1]
-        else:
-            next_student = students[order_student - 2]
-    except:
-        next_student = None
+    previous_student = order_student + 1
+    next_student = order_student - 1
 
-    student_answers = []
-    questions_array = []
-    qblocks = []
-    student_exists = False
-    if actual_student is not None:
-        student_exists = any(x.id == actual_student.id for x in students)
-        if student_exists:
-            student_answers = actual_student.answers
+    if next_student <= 0:
+        next_student = stations_count
 
-        qblocks = actual_station.qblocks()
+    if previous_student > stations_count:
+        previous_student = 1
 
-        for qblock in qblocks:
-            questions = qblock.questions()
-            for question in questions:
-                options = current_user.api_client.Option.instances(where={"question": question}, sort={"order": False})
-                for answer in student_answers:
-                    for opt in options:
-                        if answer.id == opt.id:
-                            opt.checked = True
-                            break
+    chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % planner.round.id
 
-                questions_array.append({'question': question, 'options': options})
-
-    chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round.id
-
-    students_selector = [previous_student, actual_student, next_student]
-    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, shift=shift, round=round, qblock=qblocks, questions=questions_array, students=students_selector, student_exists=student_exists)
+    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, qblocks=qblocks, planner=planner, student=student, order_student=order_student, next_student=next_student, previous_student=previous_student)
 
 
 @bp.route('/ecoe/<int:ecoe_id>/round/<int:round_id>/outside')
@@ -147,7 +109,7 @@ def send_answer(id_student, id_option):
             student.add_answers(option)
             return jsonify({'status': 204})
         except:
-            flash('Error al borrar')
+            flash('Error al guardar')
             print('Error')
             return jsonify({'status': 404})
 

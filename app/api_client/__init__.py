@@ -1,6 +1,7 @@
 from flask import current_app
 from potion_client import Client
 from potion_client.auth import HTTPBearerAuth
+from flask_login import current_user
 
 api_clients = {}
 

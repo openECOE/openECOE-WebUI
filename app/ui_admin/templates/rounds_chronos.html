@@ -1,64 +1,79 @@
-{% extends "base.html" %}
+{% extends "app_base.html" %}
 {% block content %}
 
     <div class="container">
 
-        <div class="row">
-            <div class="col-sm-12 text-center">
-                <a id="start" href="#" class="btn btn-success btn-lg active" role="button" aria-pressed="true">Iniciar todo</a>
-                <a id="pauseall" href="#" class="btn btn-danger btn-lg active" role="button" aria-pressed="true">Parar todo</a>
+
+
+        <div class="col-xs-12 col-md-4">
+            <button id="start" class="btn btn-success btn-lg btn-block">Iniciar</button>
+            <p>
+            <div class="btn-group">
+                <button id="pauseall" class="btn btn-warning btn-lg">Pausar todo</button>
+                <button id="playall" class="btn btn-primary btn-lg">Continuar todo</button>
             </div>
+            </p>
         </div>
 
+        <div class="col-xs-12 col-md-1-offset col-md-7">
         {% for r in rounds %}
-
-            <div class="row">
-                <div class="col-sm-1"><a id="play{{ r['id'] }}" href="#" class="btn btn-primary btn-lg active" role="link" aria-pressed="true">Play</a></div>
-                <div class="col-sm-1"><a id="pause{{ r['id'] }}" href="#" class="btn btn-warning btn-lg active" role="link" aria-pressed="true">Pause</a></div>
-
-                <div class="col-sm-10"><h2>Rueda {{ r['id'] }} (vuelta <span id="vuelta{{ r['id'] }}"></span>): <span id="clock{{ r['id'] }}">--:--</span></h2></div>
-
-            </div>
-
+                <h2>Rueda {{ r['id'] }} (vuelta <span id="vuelta{{ r['id'] }}"></span>)</h2>
+                <h2 id="clock{{ r['id'] }}">--:--</h2>
+                <div class="btn-group">
+                    <button type="button" id="pause{{ r['id'] }}" class="btn btn-warning">Pausar
+                    </button>
+                    <button type="button" id="play{{ r['id'] }}" class="btn btn-primary">Continuar
+                    </button>
+                </div>
         {% endfor %}
+        </div>
 
     </div>
-
+    {{ super() }}
 {% endblock %}
 
 
 {% block scripts %}
     {{ super() }}
 
-    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
 
     <script>
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             $("#start").click(function (event) {
-                    event.preventDefault();
 
-                    $.ajax({
-                        url: '{{ actions_url['start'] }}',
+                $.ajax({
+                    url: '{{ actions_url['start'] }}',
 
-                        success: function(res) {
-                            console.log(res)
-                        }
-                    });
+                    success: function (res) {
+                        console.log(res)
+                    }
+                });
             });
 
             $("#pauseall").click(function (event) {
-                    event.preventDefault();
 
-                    $.ajax({
-                        url: '{{ actions_url['pause'] }}',
+                $.ajax({
+                    url: '{{ actions_url['pause'] }}',
 
-                        success: function(res) {
-                            console.log(res)
-                        }
-                    });
+                    success: function (res) {
+                        console.log(res)
+                    }
+                });
 
+            });
+
+            $("#playall").click(function (event) {
+
+                $.ajax({
+                    url: '{{ actions_url['play'] }}',
+
+                    success: function (res) {
+                        console.log(res)
+                    }
+                });
             });
 
             {% for r in rounds %}
@@ -69,18 +84,23 @@
                     console.log('Conectado para monitorizacion de rueda {{ r['id'] }}')
                 });
 
-                socket{{ r['id'] }}.on('end_round', function(msg) {
+                socket{{ r['id'] }}.on('end_round', function (msg) {
                     $('#clock{{ r['id'] }}').css("color", "green");
                     console.log(msg.data);
                 });
 
-                socket{{ r['id'] }}.on('init_stage', function(msg) {
+                socket{{ r['id'] }}.on('init_stage', function (msg) {
                     $('#clock{{ r['id'] }}').fadeOut('fast').fadeIn('fast', function () {
                         $('#vuelta{{ r['id'] }}').text(msg.num_rerun);
                     });
                 });
 
-                socket{{ r['id'] }}.on('tic_tac', function(msg) {
+                socket{{ r.id }}.on('aborted', function (msg) {
+                    $('#clock{{ r.id }}').css("color", "red");
+                    $('#clock{{ r.id }}').text("EVALUACIÓN ABORTADA");
+                });
+
+                socket{{ r['id'] }}.on('tic_tac', function (msg) {
                     $('#clock{{ r['id'] }}').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);
 
                     if (msg.stopped == 'S') {
@@ -92,12 +112,11 @@
                 });
 
                 $("#play{{ r['id'] }}").click(function (event) {
-                    event.preventDefault();
 
                     $.ajax({
                         url: '{{ actions_url['play'] }}/{{ r['id'] }}',
 
-                        success: function(res) {
+                        success: function (res) {
                             console.log(res);
                         }
                     });
@@ -105,12 +124,11 @@
                 });
 
                 $("#pause{{ r['id'] }}").click(function (event) {
-                    event.preventDefault();
 
                     $.ajax({
                         url: '{{ actions_url['pause'] }}/{{ r['id'] }}',
 
-                        success: function(res) {
+                        success: function (res) {
                             console.log(res)
                         }
                     });
