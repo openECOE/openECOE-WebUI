@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "develop"
     config.vm.hostname = "openecoe-webui-dev"
     
-    config.vm.network "public_network"
+    #config.vm.network "public_network"
     config.vm.synced_folder "./deploy/ansible", "/tmp/deploy", mount_options: ["dmode=775,fmode=664"]
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
