@@ -8,6 +8,7 @@ import pytz
 import sys, operator
 from collections import defaultdict
 
+
 @bp.after_request
 def set_response_headers(response):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -15,12 +16,13 @@ def set_response_headers(response):
     response.headers['Expires'] = '0'
     return response
 
+
 @bp.route('/')
 @bp.route('/index')
 @login_required
 def index():
     ecoe = current_user.api_client.Ecoe.instances()
-    return render_template('eval_index.html', title='Home',  ecoes=ecoe)
+    return render_template('eval_index.html', title='Home', ecoes=ecoe)
 
 
 @bp.route('/ecoe/<int:id_ecoe>/', methods=['GET'])
@@ -47,23 +49,23 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
 
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
+    shifts = filter(lambda shift: len(shift.planners) > 0, shifts)
+
     return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts)
 
 
-@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
-@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>', methods=['GET'])
+@bp.route(
+    '/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>',
+    methods=['GET'])
 @login_required
-def exam(id_ecoe, id_station, id_shift, id_round, order_student = None):
+def exam(id_ecoe, id_station, id_shift, id_round, order_student):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
 
-    qblocks = current_user.api_client.Qblock.instances(where={"station": actual_station}, sort={"order": False})
+    qblocks = current_user.api_client.Qblock.instances(where={"station": actual_station})
 
     stations_count = len(ecoe.stations)
-
-    if order_student is None:
-        order_student = actual_station.order
 
     try:
         student = current_user.api_client.Student.first(where={"planner": planner, "planner_order": order_student})
@@ -81,7 +83,9 @@ def exam(id_ecoe, id_station, id_shift, id_round, order_student = None):
 
     chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % planner.round.id
 
-    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, qblocks=qblocks, planner=planner, student=student, order_student=order_student, next_student=next_student, previous_student=previous_student)
+    return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, qblocks=qblocks,
+                           planner=planner, student=student, order_student=order_student, next_student=next_student,
+                           previous_student=previous_student)
 
 
 @bp.route('/ecoe/<int:ecoe_id>/round/<int:round_id>/outside')
@@ -95,35 +99,24 @@ def outside_station(ecoe_id, round_id):
     return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, round=round, station_id=0)
 
 
-@bp.route('/student/<id_student>/option/<id_option>/add', methods=['POST'])
+@bp.route('/student/<id_student>/option/<id_option>', methods=['POST','DELETE'])
 @login_required
 def send_answer(id_student, id_option):
-    if request.method == 'POST':
-        option = current_user.api_client.Option(id_option)
-        student = current_user.api_client.Student(id_student)
+    option = current_user.api_client.Option(id_option)
+    student = current_user.api_client.Student(id_student)
 
+    if request.method == 'POST':
         try:
             student.add_answers(option)
             return jsonify({'status': 204})
         except:
-            flash('Error al guardar')
-            print('Error')
-            return jsonify({'status': 404})
-
-
-@bp.route('/student/<id_student>/option/<id_option>/delete', methods=['DELETE'])
-@login_required
-def delete_answer(id_student, id_option):
-    if request.method == 'DELETE':
-        answer = current_user.api_client.Option(id_option)
-        student = current_user.api_client.Student(id_student)
-
-        try:
-            student.remove_answers(answer)
-            return jsonify({'status': 204})
-        except:
-            flash('Error al borrar')
             print('Error al borrar', sys.exc_info()[0])
             return jsonify({'status': 404})
 
-
+    elif request.method == 'DELETE':
+        try:
+            student.remove_answers(option)
+            return jsonify({'status': 204})
+        except:
+            print('Error al borrar', sys.exc_info()[0])
+            return jsonify({'status': 404})

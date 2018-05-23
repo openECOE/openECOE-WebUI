@@ -1,0 +1,21 @@
+{% macro toggle_button(name, data_on, data_off, checked=False, action="", value="", data_onstyle="success", data_offstyle="default", data_width="", class="") %}
+    <input
+            {% if checked %}checked{% endif %}
+            type="checkbox"
+            data-toggle="toggle"
+            data-onstyle="{{ data_onstyle }}"
+            data-offstyle="{{ data_offstyle }}"
+            data-on="{{ data_on }}"
+            data-off="{{ data_off }}"
+            name="checkbox_{{ name }}"
+            value="{{ value }}"
+            data-width={{ data_width }}
+                    class="{{ class }}"
+            onchange="{{ action }}"
+    />
+{% endmacro %}
+
+{#TODO: Create macro for radio button group#}
+{% macro select_button(name, data_on, data_off, checked=False, action="", value="", data_onstyle="success", data_offstyle="default", data_width="", class="") %}
+
+{% endmacro %}
