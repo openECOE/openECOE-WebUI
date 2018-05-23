@@ -2,3 +2,4 @@
 	path = deploy
 	url = git@github.com:openECOE/openECOE-deploy.git
 	ignore= dirty
+	branch = master
