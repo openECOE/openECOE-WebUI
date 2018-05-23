@@ -1,0 +1,31 @@
+{% extends "app_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+
+    <div class="container">
+
+        <table class="table table-responsive table-sm">
+            <thead>
+                <tr>
+                    {% for name in data.fieldnames %}
+                        <th scope="col">{{ name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                    <tr>
+                        <td>{{row['Orden']}}</td>
+                        <td>{{row['Literal']}}</td>
+                        <td>{{row['Ref']}}</td>
+                        <td>{{row['Puntos']}}</td>
+                        <td>{{row['Área']}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
