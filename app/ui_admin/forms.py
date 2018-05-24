@@ -32,4 +32,4 @@ class AddStudentForm(FlaskForm):
 
 class UploadCSVForm(FlaskForm):
     csv = FileField('Fichero de preguntas', validators=[FileRequired(), FileAllowed(['.csv'], 'Solo CSV')])
-    submit = SubmitField('Aceptar')
+    #submit = SubmitField('Aceptar')

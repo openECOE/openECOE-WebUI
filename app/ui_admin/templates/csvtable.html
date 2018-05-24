@@ -5,6 +5,18 @@
 
     <div class="container">
 
+        <form class="form form-horizontal" method="post" role="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="ecoe" id="ecoe">
+
+            <label for="station">Estación</label>
+            <select class="custom-select" id="station">
+                <option value="1">1</option>
+                <option value="1">2</option>
+            </select>
+
+        </form>
+
         <table class="table table-responsive table-sm">
             <thead>
                 <tr>
@@ -14,6 +26,7 @@
                 </tr>
             </thead>
             <tbody>
+                {#% for row in data|sort(reverse=True,attribute='Orden') %#}
                 {% for row in data %}
                     <tr>
                         <td>{{row['Orden']}}</td>

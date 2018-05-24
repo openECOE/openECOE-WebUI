@@ -1,0 +1,98 @@
+{% extends "app_base.html" %}
+{% from 'macros.html' import modal_upload_csv %}
+
+{% block content %}
+
+    <!-- modal upload form -->
+    <div class="modal fade" id="uploadCSV" tabindex="-1" role="dialog" aria-labelledby="uploadCSVLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="uploadCSVLabel">Cargar preguntas (CSV)</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <!--<form method="post" id="uploadCSVform" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="form-group">
+                    <label for="csv_file">Fichero</label>
+                    <input type="file" class="form-control-file" id="csv_file">
+                </div>
+            </form>-->
+              {{ wtf.quick_form(uploadCSVform, action=url_for('ui_admin.questions', id_station=station.id), id='uploadCSVform') }}
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" id="uploadCSV_btsubmit" class="btn btn-primary">Aceptar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end modal -->
+
+    {{ utils.flashed_messages(dismissible=True) }}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col">
+                <h3>Preguntas de la estación {{ station.order }} - {{ station.name }}</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCSV" data-whatever="@mdo">Cargar preguntas</button>
+            </div>
+        </div>
+
+        {% for qblock in qblocks %}
+            <h4><span class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span></h4>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="col-xs-1">Num.</th>
+                        <th class="col-xs-5">Enunciado</th>
+                        <th class="col-xs-2">Referencia</th>
+                        <th class="col-xs-1">Puntos</th>
+                        <th class="col-xs-3">Área</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for question in qblock.questions %}
+                    <tr>
+                        <td>{{ question.order }}</td>
+                        <td>{{ question.description }}</td>
+                        <td>{{ question.reference }}</td>
+                        <td>--</td>
+                        <td>{{ question.area.name }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+
+        $(document).ready(function () {
+
+            $("#uploadCSV_btsubmit").click(function () {
+                $("#uploadCSVform").submit();
+            });
+
+        });
+
+    </script>
+{% endblock %}
