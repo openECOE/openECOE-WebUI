@@ -90,6 +90,9 @@ def _change_qblock(questions_id, station, qblock_target_name):
         question = current_user.api_client.Question(q_id)
         qblock_origin = current_user.api_client.Qblock(question.qblocks[0].id)
 
+        if qblock_origin.id == qblock_target.id:
+            raise Exception('No se puede cambiar al mismo bloque')
+
         qblock_target.add_questions(question)
         qblock_origin.remove_questions(question)
 
@@ -134,8 +137,11 @@ def questions(id_station):
             questions_id = request.form.getlist('question_id')
             qblock_target = request.form.get('qblock_target')
 
-            _change_qblock(map(int, questions_id), station, qblock_target)
-            flash('%d preguntas cambiadas al bloque %s' % (len(questions_id), qblock_target))
+            try:
+                _change_qblock(map(int, questions_id), station, qblock_target)
+                flash('%d preguntas cambiadas al bloque %s' % (len(questions_id), qblock_target))
+            except Exception as e:
+                flash(str(e), category='warning')
 
         return redirect(url_for('.questions', id_station=id_station))
 
