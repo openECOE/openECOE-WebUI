@@ -37,6 +37,7 @@ def _load_questions(station):
             qblock.name = 'General'
             qblock.order = 1
             qblock.station = station
+            qblock.save()
 
         # 2. Save questions
         question = current_user.api_client.Question()
@@ -73,6 +74,26 @@ def _load_questions(station):
         qblock.add_questions(question)
 
 
+def _change_qblock(questions_id, station, qblock_target_name):
+
+    try:
+        qblock_target = current_user.api_client.Qblock.first(where={"name": qblock_target_name, "station": station})
+    except:
+        qblock_target = current_user.api_client.Qblock()
+        qblock_target.name = qblock_target_name
+        #TODO: revisar el orden que se le asigna
+        qblock_target.order = 1
+        qblock_target.station = station
+        qblock_target.save()
+
+    for q_id in questions_id:
+        question = current_user.api_client.Question(q_id)
+        qblock_origin = current_user.api_client.Qblock(question.qblocks[0].id)
+
+        qblock_target.add_questions(question)
+        qblock_origin.remove_questions(question)
+
+
 @bp.route('/station/<int:id_station>/questions', methods=['GET', 'POST'])
 @login_required
 def questions(id_station):
@@ -81,49 +102,41 @@ def questions(id_station):
 
     if request.method == 'GET':
 
-        uploadCSVform = UploadCSVForm(request.form)
+        # TODO: create qblock_type in database model
         qblocks = current_user.api_client.Qblock.instances(where={"station": station}, sort={"order": False})
+        qblock_types = [qb.name for qb in qblocks]
 
-        #TODO: create qblock_type in database model
-        qblock_types = [qb.name for qb in qblocks] if len(qblocks) > 0 else ['General', 'Comunicación']
+        if 'General' not in qblock_types:
+            qblock_types.append('General')
 
-        return render_template('station-questions.html', station=station, qblock_types=qblock_types, qblocks=qblocks, uploadCSVform=uploadCSVform)
+        if 'Comunicación' not in qblock_types:
+            qblock_types.append('Comunicación')
+
+        uploadCSVform = UploadCSVForm(request.form)
+
+        return render_template('station-questions.html',
+                               station=station,
+                               qblock_types=qblock_types,
+                               qblocks=qblocks,
+                               uploadCSVform=uploadCSVform)
 
     elif request.method == 'POST':
 
-        _load_questions(station)
-        flash('Preguntas cargadas correctamente')
+        post_action = request.form.get('post_action')
+
+        if post_action == 'load_csv':
+
+            _load_questions(station)
+            flash('Preguntas cargadas correctamente')
+
+        elif post_action == 'change_qblock':
+
+            questions_id = request.form.getlist('question_id')
+            qblock_target = request.form.get('qblock_target')
+
+            _change_qblock(map(int, questions_id), station, qblock_target)
+            flash('%d preguntas cambiadas al bloque %s' % (len(questions_id), qblock_target))
 
         return redirect(url_for('.questions', id_station=id_station))
 
 
-@bp.route('/ecoe/<int:id_ecoe>/load/questions', methods=['GET', 'POST'])
-@login_required
-def load_questions(id_ecoe):
-
-    if request.method == 'GET':
-
-        loadQuestionsForm = UploadCSVForm(request.form)
-        return render_template('upload_csv.html', form=loadQuestionsForm)
-
-    else:
-
-        if 'csv' not in request.files:
-            flash('No se ha indicado el fichero')
-            return redirect(request.url)
-
-        file = request.files['csv']
-
-        if file.filename == '':
-            flash('No se ha indicado el fichero')
-            return redirect(request.url)
-
-        try:
-            stream = StringIO(file.stream.read().decode("UTF8"), newline=None)
-            csv_input = csv.DictReader(stream)
-        except:
-            flash('No se ha podido leer el fichero. Compruebe que el formato sea CSV')
-            return redirect(request.url)
-
-        if file:
-            return render_template('csvtable.html', data=csv_input)

@@ -61,3 +61,49 @@
 
     /*** END SOCKETS ***/
 {% endmacro %}
+
+{% macro make_dropdown(options, id_dropdown, labelText, labelIcon=none, classColor='btn-warning', disabled=False) %}
+
+    <div class="dropdown">
+        <button class="btn {{ classColor }} dropdown-toggle" id="{{ id_dropdown }}" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {% if disabled %} disabled {% endif %}>
+            {% if labelIcon %}
+            <i class="fa fa-{{ labelIcon }}-o" aria-hidden="true"></i>&nbsp;&nbsp;
+            {% endif %}
+            {{ labelText }}
+            <span class="caret"></span>
+        </button>
+
+        <ul class="dropdown-menu">
+            {% for option in options %}
+                {% if option.id == '__divider__' %}
+                    <li role="separator" class="divider"></li>
+                {% else %}
+                    <li>
+                        <a id="{{ option.id }}" href="#">
+                        {% if option.icon %}
+                        <i class="fa fa-{{ option.icon }}-o" aria-hidden="true"></i>&nbsp;&nbsp;
+                        {% endif %}
+                        {{ option.description }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endmacro %}
+
+{% macro make_dropdown_selected(options, id_dropdown='dd_selected') %}
+    {{ make_dropdown(options, id_dropdown, 'Seleccionados', 'check-square', disabled=True) }}
+{% endmacro %}
+
+{% macro enable_disable_dropdown_selected(id_form, name, type='checkbox', id_dropdown='dd_selected') %}
+
+    $("{{ id_form }} input[type={{ type }}][name={{ name }}]").change(function () {
+        if (this.checked)
+            $('#{{ id_dropdown }}').attr('disabled', false);
+        else if ($("{{ id_form }} input[type={{ type }}][name={{ name }}]:checked").length == 0)
+            $('#{{ id_dropdown }}').attr('disabled', true);
+    });
+
+{% endmacro %}
