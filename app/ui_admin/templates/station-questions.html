@@ -5,23 +5,21 @@
 {% block content %}
 
     <!-- modal upload form -->
-    <div class="modal fade" id="uploadCSV" tabindex="-1" role="dialog" aria-labelledby="uploadCSVLabel" aria-hidden="true">
+    <div class="modal fade" id="uploadCSV" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
 
           <div class="modal-header">
-            <h4 class="modal-title" id="uploadCSVLabel">Cargar preguntas</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Cambiar preguntas de bloque</h4>
           </div>
 
           <div class="modal-body">
-              {{ wtf.quick_form(uploadCSVform, action=url_for('ui_admin.questions', id_station=station.id), id='uploadCSVform') }}
+              {{ wtf.quick_form(uploadCSVform, action=url_for('ui_admin.load_questions', id_station=station.id), id='uploadCSVform') }}
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
             <button type="button" id="uploadCSV_btsubmit" class="btn btn-primary">Aceptar</button>
           </div>
 
@@ -67,7 +65,7 @@
                     <div class="modal-content">
 
                         <div class="modal-header">
-                            <h4 class="modal-title" id="changeBlockLabel">Cambiar bloque</h4>
+                            <h4 class="modal-title" id="changeBlockLabel">Cambiar preguntas de bloque</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>
