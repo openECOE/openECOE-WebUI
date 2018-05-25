@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash, redirect, url_for, current_app, make_response, jsonify, json
+from flask import render_template, flash, redirect, url_for
 from flask_login import login_required, current_user
 from potion_client.exceptions import ItemNotFound
 from requests.exceptions import HTTPError
@@ -17,8 +17,7 @@ def _change_qblock(questions_id, station, qblock_target_name):
     except:
         qblock_target = current_user.api_client.Qblock()
         qblock_target.name = qblock_target_name
-        #TODO: revisar el orden que se le asigna
-        qblock_target.order = 1
+        qblock_target.order = 0
         qblock_target.station = station
         qblock_target.save()
 
@@ -72,7 +71,7 @@ def questions(id_station):
                 _change_qblock(map(int, questions_id), station, qblock_target)
                 flash('%d preguntas cambiadas al bloque %s' % (len(questions_id), qblock_target))
             except Exception as e:
-                flash(str(e), category='warning')
+                flash(str(e), category='error')
 
         return redirect(url_for('.questions', id_station=id_station))
 

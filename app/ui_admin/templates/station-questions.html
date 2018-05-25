@@ -11,7 +11,7 @@
 
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Cambiar preguntas de bloque</h4>
+            <h4 class="modal-title">Cargar preguntas</h4>
           </div>
 
           <div class="modal-body">
@@ -48,72 +48,73 @@
             </div>
 
             <div class="col-sm-6 text-right">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCSV" data-whatever="@mdo">Cargar preguntas</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCSV">Cargar preguntas</button>
             </div>
         </div>
 
-        <form method="post" id="elementsTable">
+        <form method="post" id="questions_table">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <input type="hidden" id="post_action" name="post_action" value="" />
 
-        {% for qblock in qblocks %}
-            <h4 class="text-center"><span class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span></h4>
+            {% for qblock in qblocks %}
+                <h4 class="text-center"><span class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span></h4>
 
-            <!-- modal change block form -->
-            <div class="modal fade" id="changeBlock" tabindex="-1" role="dialog" aria-labelledby="changeBlockLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
+                <!-- modal change block form -->
+                <div class="modal fade" id="changeBlock" tabindex="-1" role="dialog" aria-labelledby="changeBlockLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
 
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="changeBlockLabel">Cambiar preguntas de bloque</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="changeBlockLabel">Cambiar preguntas de bloque</h4>
+                            </div>
+
+                            <div class="modal-body">
+                              <label for="qblock_target">Bloque destino</label>
+                              <select class="form-control" name="qblock_target" id="qblock_target">
+                                  {% for qb_type in qblock_types %}
+                                    <option value="{{ qb_type }}">{{ qb_type }}</option>
+                                  {% endfor %}
+                              </select>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Aceptar</button>
+                            </div>
+
                         </div>
-
-                        <div class="modal-body">
-                          <select class="form-control" name="qblock_target">
-                              {% for qb_type in qblock_types %}
-                                <option value="{{ qb_type }}">{{ qb_type }}</option>
-                              {% endfor %}
-                          </select>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                            <button type="submit" id="changeBlock_btsubmit" class="btn btn-primary">Aceptar</button>
-                        </div>
-
                     </div>
                 </div>
-            </div>
-            <!-- end modal -->
+                <!-- end modal -->
 
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th class="col-xs-1">#</th>
-                        <th class="col-xs-1">Num.</th>
-                        <th class="col-xs-5">Enunciado</th>
-                        <th class="col-xs-2">Referencia</th>
-                        <th class="col-xs-1">Puntos</th>
-                        <th class="col-xs-2">Área</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for question in qblock.questions %}
-                    <tr>
-                        <td><input type="checkbox" name="question_id" id="question_{{ question.id }}" value="{{ question.id }}"/></td>
-                        <td>{{ question.order }}</td>
-                        <td>{{ question.description }}</td>
-                        <td>{{ question.reference }}</td>
-                        <td>--</td>
-                        <td>{{ question.area.name }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endfor %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="col-xs-1">#</th>
+                            <th class="col-xs-1">Num.</th>
+                            <th class="col-xs-5">Enunciado</th>
+                            <th class="col-xs-2">Referencia</th>
+                            <th class="col-xs-1">Puntos</th>
+                            <th class="col-xs-2">Área</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for question in qblock.questions %}
+                        <tr>
+                            <td><input type="checkbox" name="question_id" id="question_{{ question.id }}" value="{{ question.id }}"/></td>
+                            <td>{{ question.order }}</td>
+                            <td>{{ question.description }}</td>
+                            <td>{{ question.reference }}</td>
+                            <td>--</td>
+                            <td>{{ question.area.name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
 
         </form>
 
@@ -128,7 +129,7 @@
 
         $(document).ready(function () {
 
-            {{ enable_disable_dropdown_selected('#elementsTable', 'question_id') }}
+            {{ enable_disable_dropdown_selected('questions_table', 'question_id') }}
 
             $("#uploadCSV_btsubmit").click(function () {
                 $("#uploadCSVform").submit();
@@ -136,7 +137,7 @@
 
             //selected items
             $('#opt_move_qblock').click(function () {
-                $('#elementsTable #post_action').val('change_qblock');
+                $('#post_action').val('change_qblock');
                 $('#changeBlock').modal('show');
             });
 
