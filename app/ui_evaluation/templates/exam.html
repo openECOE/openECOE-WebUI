@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 {% from 'macros.html' import info_chrono_station, client_eval_socket %}
-{% from 'macros/option_buttons.html' import toggle_button %}
+{% from 'macros/option_buttons.html' import toggle_button, range_select %}
 
 {% block content %}
     <div class="container">
@@ -121,6 +121,11 @@
                                                                 action="sendAnswer(this, " + student.id|string + ", " + option.id|string + ")",
                                                                 data_width= 100) }}
                                     {% endfor %}
+                                {% elif question.question_type == 'RS' %}
+                                    {{ range_select( name = question.id|string,
+                                                    options = question.options,
+                                                    answers = student.answers,
+                                                    action = "postAnswer("+ student.id|string +", value)") }}
                                 {% endif %}
                             </td>
                         </tr>

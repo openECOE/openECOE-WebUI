@@ -19,3 +19,26 @@
 {% macro select_button(name, data_on, data_off, checked=False, action="", value="", data_onstyle="success", data_offstyle="default", data_width="", class="") %}
 
 {% endmacro %}
+
+{% macro range_select(name, options, answers=[], action=None) %}
+    <select id="range_{{ name }}">
+        <option value=''></option>
+        {% for option in options|sort(attribute='order') %}
+            <option value={{ option.id }} {% if option in answers %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+    </select>
+    <script type="text/javascript">
+        $(function () {
+            $('#range_{{ name }}').barrating({
+                theme: 'bars-1to10',
+                allowEmpty: true,
+                {% if action %}
+                    onSelect: function (value, text, event) {
+                        {{ action }}
+                    }
+                {% endif %}
+            })
+            ;
+        });
+    </script>
+{% endmacro %}
