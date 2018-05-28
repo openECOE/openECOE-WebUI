@@ -1,5 +1,6 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/utils.html" as utils %}
 {% block head %}
     {{ super() }}
     {{ moment.include_jquery(local_js=url_for('static', filename='js/jquery-3.3.1.min.js')) }}
@@ -11,6 +12,7 @@
     {{super()}}
     <link rel="stylesheet"
           href="{{url_for('static', filename='css/custom.css')}}">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 {% endblock %}
 
 {% block navbar %}
