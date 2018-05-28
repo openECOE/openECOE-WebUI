@@ -102,7 +102,7 @@
     $("#{{ id_form }} input[type={{ type }}][name={{ name }}]").change(function () {
         if (this.checked)
             $('#{{ id_dropdown }}').attr('disabled', false);
-        else if ($("{{ id_form }} input[type={{ type }}][name={{ name }}]:checked").length == 0)
+        else if ($("#{{ id_form }} input[type={{ type }}][name={{ name }}]:checked").length == 0)
             $('#{{ id_dropdown }}').attr('disabled', true);
     });
 

@@ -108,7 +108,7 @@
                             <td>{{ question.order }}</td>
                             <td>{{ question.description }}</td>
                             <td>{{ question.reference }}</td>
-                            <td>--</td>
+                            <td>{{ question.read_points() }}</td>
                             <td>{{ question.area.name }}</td>
                         </tr>
                     {% endfor %}
