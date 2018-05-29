@@ -22,7 +22,7 @@ def _change_qblock(questions_id, station, qblock_target_name):
         qblock_target.save()
 
     for q_id in questions_id:
-        question = current_user.api_client.Question(q_id)
+        question = current_user.api_client.Question.fetch(q_id)
         qblock_origin = current_user.api_client.Qblock(question.qblocks[0].id)
 
         if qblock_origin.id == qblock_target.id:
@@ -40,7 +40,6 @@ def questions(id_station):
 
     if request.method == 'GET':
 
-        # TODO: create qblock_type in database model
         qblocks = current_user.api_client.Qblock.instances(where={"station": station}, sort={"order": False})
         qblock_types = [qb.name for qb in qblocks]
 
@@ -94,13 +93,15 @@ def _load_csv(station):
 
     for row in csv_input:
 
-        # 1. If there are not qblocks, one must be created
+        # 1. If qblock does not exist, must be created (general o specific)
+        qblock_name = row.get('Bloque', 'General')
+
         try:
-            qblock = current_user.api_client.Qblock.first(where={"station": station, "name": 'General'})
+            qblock = current_user.api_client.Qblock.first(where={"station": station, "name": qblock_name})
         except ItemNotFound:
             qblock = current_user.api_client.Qblock()
-            qblock.name = 'General'
-            qblock.order = 1
+            qblock.name = qblock_name
+            qblock.order = 0
             qblock.station = station
             qblock.save()
 
@@ -110,10 +111,7 @@ def _load_csv(station):
         question.description = row['Enunciado'].strip()
 
         try:
-            area = current_user.api_client.Area(int(row['AC']))
-
-            if area.ecoe != station.ecoe:
-                raise Exception('El área %d no corresponde con la ECOE de la estación' % area.id)
+            area = current_user.api_client.Area.first(where={"code": row['AC'], "ecoe": station.ecoe})
 
             question.area = area
         except HTTPError:
