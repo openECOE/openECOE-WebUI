@@ -40,7 +40,6 @@ def questions(id_station):
 
     if request.method == 'GET':
 
-        # TODO: create qblock_type in database model
         qblocks = current_user.api_client.Qblock.instances(where={"station": station}, sort={"order": False})
         qblock_types = [qb.name for qb in qblocks]
 
@@ -94,13 +93,15 @@ def _load_csv(station):
 
     for row in csv_input:
 
-        # 1. If there are not qblocks, one must be created
+        # 1. If qblock does not exist, must be created (general o specific)
+        qblock_name = row.get('Bloque', 'General')
+
         try:
-            qblock = current_user.api_client.Qblock.first(where={"station": station, "name": 'General'})
+            qblock = current_user.api_client.Qblock.first(where={"station": station, "name": qblock_name})
         except ItemNotFound:
             qblock = current_user.api_client.Qblock()
-            qblock.name = 'General'
-            qblock.order = 1
+            qblock.name = qblock_name
+            qblock.order = 0
             qblock.station = station
             qblock.save()
 
