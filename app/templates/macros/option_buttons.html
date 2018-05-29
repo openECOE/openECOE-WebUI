@@ -1,44 +1,65 @@
-{% macro toggle_button(name, data_on, data_off, checked=False, action="", value="", data_onstyle="success", data_offstyle="default", data_width="", class="") %}
-    <input
-            {% if checked %}checked{% endif %}
-            type="checkbox"
-            data-toggle="toggle"
-            data-onstyle="{{ data_onstyle }}"
-            data-offstyle="{{ data_offstyle }}"
-            data-on="{{ data_on }}"
-            data-off="{{ data_off }}"
-            name="checkbox_{{ name }}"
-            value="{{ value }}"
-            data-width={{ data_width }}
+{% macro toggle_button(name, data_on, data_off, checked=False, action="", value="", data_onstyle="success", data_offstyle="default", data_width=None, class="") %}
+    <div class="checkbox">
+        <label class="{{ class }}">
+            <input
+                    {% if checked %}checked{% endif %}
+                    type="checkbox"
+                    data-toggle="toggle"
+                    data-onstyle="{{ data_onstyle }}"
+                    data-offstyle="{{ data_offstyle }}"
+                    data-on="{{ data_on }}"
+                    data-off="{{ data_off }}"
+                    name="checkbox_{{ name }}"
+                    value="{{ value }}"
+                    {% if data_width %}data-width="{{ data_width }}"{% endif %}
                     class="{{ class }}"
-            onchange="{{ action }}"
-    />
+                    onchange="{{ action }}"
+            />
+        </label>
+    </div>
 {% endmacro %}
 
 {#TODO: Create macro for radio button group#}
-{% macro select_button(name, data_on, data_off, checked=False, action="", value="", data_onstyle="success", data_offstyle="default", data_width="", class="") %}
-
+{% macro select_button(name, options, answers=[], action="", class_btn="", class_group="") %}
+    <div class="radio">
+        <div class="btn-group-vertical {{ class_group }}" role="group" data-toggle="buttons">
+            {% set ns_option = namespace(selected=None) %}
+            {% for option in options|sort(attribute='order') %}
+                {% if option in answers %}{% set ns_option.selected = option.id %}{% else %}
+                    {% set ns_option.selected = None %}{% endif %}
+                <label class="btn btn-outline {{ class_btn }} {% if ns_option.selected %}active{% endif %}">
+                    <input type="radio" autocomplete="off"
+                           name="radiobutton_{{ name }}"
+                           value="{{ option.id }}"
+                           onchange="{{ action }}"
+                            {% if ns_option.selected %} checked {% endif %}>
+                    {{ option.label }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
 {% endmacro %}
 
-{% macro range_select(name, options, answers=[], action=None) %}
-    <select id="range_{{ name }}">
-        <option value=''></option>
-        {% for option in options|sort(attribute='order') %}
-            <option value={{ option.id }} {% if option in answers %}selected{% endif %}>{{ option.label }}</option>
-        {% endfor %}
-    </select>
-    <script type="text/javascript">
-        $(function () {
-            $('#range_{{ name }}').barrating({
-                theme: 'bars-1to10',
-                allowEmpty: true,
-                {% if action %}
-                    onSelect: function (value, text, event) {
-                        {{ action }}
-                    }
-                {% endif %}
-            })
-            ;
-        });
-    </script>
+{% macro range_select(name, options, answers=[], action_select=None, class="") %}
+    <div class="custom-select">
+        <select id="range_{{ name }}" class="{{ class }}">
+            {% for option in options|sort(attribute='order', reverse=False) %}
+                <option value={{ option.id }} {% if option in answers %}selected{% endif %}>{{ option.label }}</option>
+            {% endfor %}
+        </select>
+        <script type="text/javascript">
+            $(function () {
+                $('#range_{{ name }}').barrating({
+                    theme: 'bars-1to10',
+                    reverse: false,
+                    {% if action_select %}
+                        onSelect: function (value, text, event) {
+                            {{ action_select }}
+                        },
+                    {% endif %}
+                })
+                ;
+            });
+        </script>
+    </div>
 {% endmacro %}

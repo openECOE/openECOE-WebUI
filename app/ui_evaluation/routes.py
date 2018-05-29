@@ -9,14 +9,6 @@ import sys, operator
 from collections import defaultdict
 
 
-@bp.after_request
-def set_response_headers(response):
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
-    return response
-
-
 @bp.route('/')
 @bp.route('/index')
 @login_required
@@ -59,7 +51,7 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
     methods=['GET'])
 @login_required
 def exam(id_ecoe, id_station, id_shift, id_round, order_student):
-    ecoe = current_user.api_client.Ecoe(id_ecoe)
+    ecoe = current_user.api_client.Ecoe.fetch(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
 

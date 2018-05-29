@@ -10,6 +10,8 @@ from requests.auth import HTTPBasicAuth
 from requests import exceptions
 from potion_client.auth import HTTPBearerAuth
 from app.api_client import create_api, delete_api
+from datetime import datetime
+import sys
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -24,8 +26,9 @@ def login():
             json = response.json()
             token = json['token']
             token_expiration = json['expiration']
+            delete_api(token)
 
-            login_user(load_user(token), remember=form.remember_me.data)
+            login_user(get_user(token), remember=form.remember_me.data)
 
 
             next_page = request.args.get('next')
@@ -42,8 +45,7 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
-@login_manager.user_loader
-def load_user(token):
+def get_user(token):
     logged_user = UserMixin()
 
     try:
@@ -58,5 +60,10 @@ def load_user(token):
     logged_user.username = user.email
     logged_user.name = user.name
     logged_user.surname = user.surname
+    logged_user.organization = user.organization
 
     return logged_user
+
+@login_manager.user_loader
+def load_user(token):
+    return get_user(token)
