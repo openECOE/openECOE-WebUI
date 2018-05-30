@@ -1,0 +1,147 @@
+{% extends "app_base.html" %}
+{% from 'macros.html' import modal_upload_csv %}
+{% from 'macros.html' import make_dropdown_selected, enable_disable_dropdown_selected %}
+
+{% block content %}
+
+    <!-- modal upload form -->
+    <div class="modal fade" id="uploadCSV" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Cargar preguntas</h4>
+          </div>
+
+          <div class="modal-body">
+              {{ wtf.quick_form(uploadCSVform, action=url_for('ui_admin.load_questions', id_station=station.id), id='uploadCSVform') }}
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="button" id="uploadCSV_btsubmit" class="btn btn-primary">Aceptar</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- end modal -->
+
+    {{ utils.flashed_messages(dismissible=True) }}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col text-center">
+                <h3>Preguntas de la estación {{ station.order }} - {{ station.name }}</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 text-left">
+                {% set options = [
+                    {'id': 'opt_move_qblock', 'description': 'Mover a otro bloque'},
+                ] %}
+
+                {{ make_dropdown_selected(options) }}
+            </div>
+
+            <div class="col-sm-6 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCSV">Cargar preguntas</button>
+            </div>
+        </div>
+
+        <form method="post" id="questions_table">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" id="post_action" name="post_action" value="" />
+
+            {% for qblock in qblocks %}
+                <h4 class="text-center"><span class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span></h4>
+
+                <!-- modal change block form -->
+                <div class="modal fade" id="changeBlock" tabindex="-1" role="dialog" aria-labelledby="changeBlockLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="changeBlockLabel">Cambiar preguntas de bloque</h4>
+                            </div>
+
+                            <div class="modal-body">
+                              <label for="qblock_target">Bloque destino</label>
+                              <select class="form-control" name="qblock_target" id="qblock_target">
+                                  {% for qb_type in qblock_types %}
+                                    <option value="{{ qb_type }}">{{ qb_type }}</option>
+                                  {% endfor %}
+                              </select>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Aceptar</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end modal -->
+
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="col-xs-1">#</th>
+                            <th class="col-xs-1">Num.</th>
+                            <th class="col-xs-5">Enunciado</th>
+                            <th class="col-xs-2">Referencia</th>
+                            <th class="col-xs-1">Puntos</th>
+                            <th class="col-xs-2">Área</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for question in qblock.questions %}
+                        <tr>
+                            <td><input type="checkbox" name="question_id" id="question_{{ question.id }}" value="{{ question.id }}"/></td>
+                            <td>{{ question.order }}</td>
+                            <td>{{ question.description }}</td>
+                            <td>{{ question.reference }}</td>
+                            <td>{{ question.read_points() }}</td>
+                            <td>{{ question.area.name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+
+        </form>
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+
+        $(document).ready(function () {
+
+            {{ enable_disable_dropdown_selected('questions_table', 'question_id') }}
+
+            $("#uploadCSV_btsubmit").click(function () {
+                $("#uploadCSVform").submit();
+            });
+
+            //selected items
+            $('#opt_move_qblock').click(function () {
+                $('#post_action').val('change_qblock');
+                $('#changeBlock').modal('show');
+            });
+
+        });
+
+    </script>
+{% endblock %}

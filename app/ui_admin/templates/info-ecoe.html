@@ -35,7 +35,7 @@
                     <div class="card-body">
                         <ul class="list-group list-group-flush">
                             {% for station in stations %}
-                                <li class="list-group-item">{{ station.name }}</li>
+                                <li class="list-group-item">{{ station.name }} / <a href="{{ url_for('.questions', id_station=station.id) }}">Preguntas</a></li>
                             {% endfor %}
                         </ul>
                     </div>

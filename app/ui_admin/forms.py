@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -27,3 +28,8 @@ class AddStudentForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
     dni = StringField('DNI', validators=[DataRequired()])
     submit = SubmitField('Añadir')
+
+
+class UploadCSVForm(FlaskForm):
+    csv = FileField('Fichero de preguntas', validators=[FileRequired(), FileAllowed(['.csv'], 'Solo CSV')])
+    #submit = SubmitField('Aceptar')

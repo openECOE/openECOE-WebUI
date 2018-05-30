@@ -17,9 +17,9 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet"
+          href="{{url_for('static', filename='css/custom.css')}}">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
           href="{{ url_for('static', filename='css/bootstrap-toggle.min.css') }}">
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/custom.css') }}">
     <link rel="stylesheet"
           href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <link rel="stylesheet"
