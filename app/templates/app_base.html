@@ -1,5 +1,6 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/utils.html" as util %}
 {% block head %}
     {{ super() }}
     {{ moment.include_jquery(local_js=url_for('static', filename='js/jquery-3.3.1.min.js')) }}
@@ -29,8 +30,9 @@
     {% include "navbar.html" %}
 {% endblock %}
 
-{%- block content %}
+{%- block body %}
+    {{ super() }}
     {%- block footer %}
         {% include "footer.html" %}
     {%- endblock footer %}
-{%- endblock content %}
+{%- endblock body %}

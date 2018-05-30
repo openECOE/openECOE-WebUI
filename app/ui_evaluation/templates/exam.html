@@ -1,8 +1,9 @@
 {% extends "app_base.html" %}
-{% from 'macros.html' import info_chrono_station, client_eval_socket %}
+{% from 'macros/chrono.html' import info_chrono_station, client_eval_socket %}
 {% from 'macros/option_buttons.html' import toggle_button, range_select, select_button %}
 
 {% block content %}
+    {{util.flashed_messages(dismissible=True)}}
     <div class="container">
         <div class="row">
             <div class="col-xs-12 col-md-6">
@@ -84,39 +85,39 @@
                             <td class="col-xs-12 col-sm-4 col-md-3 pull-left-xs text-right-xs">
                                 <span class="col-xs-12">{{ question.reference }}</span>
                                 <div class="col-xs-12 pull-right-xs">
-                                {% if question.question_type == 'RB' %}
-                                    {% if question.options|length > 2 %}
-                                        {{ select_button(   name=question.id|string,
+                                    {% if question.question_type == 'RB' %}
+                                        {% if question.options|length > 2 %}
+                                            {{ select_button(   name=question.id|string,
                                                             options = question.options,
-                                                            answers = student.answers,
+                                                            answers_ids = question.answers_ids,
                                                             action = "sendAnswer(this, " + student.id|string + ", this.value)",
                                                             class_btn = "btn-success",
-                                                            class_group = "col-xs-12")}}
-                                    {% elif question.options|length == 2 %}
-                                        {{ toggle_button(   name=question.options[0].id|string,
+                                                            class_group = "col-xs-12") }}
+                                        {% elif question.options|length == 2 %}
+                                            {{ toggle_button(   name=question.options[0].id|string,
                                                             data_on=question.options[0].label,
                                                             data_off=question.options[1].label,
-                                                            checked=question.options[0] in student.answers,
+                                                            checked=question.options[0].id in question.answers_ids,
                                                             action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")") }}
-                                    {% elif question.options|length == 1 %}
-                                        {{ toggle_button(   name=question.id|string,
+                                        {% elif question.options|length == 1 %}
+                                            {{ toggle_button(   name=question.id|string,
                                                             data_on=question.options[0].label,
                                                             data_off=question.options[0].label,
-                                                            checked=question.options[0] in student.answers,
+                                                            checked=question.options[0].id in question.answers_ids,
                                                             action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")") }}
-                                    {% endif %}
-                                {% elif question.question_type == 'CH' %}
-                                    {% for option in question.options|sort(attribute='order') %}
-                                        {{ toggle_button(   name=question.id|string,
+                                        {% endif %}
+                                    {% elif question.question_type == 'CH' %}
+                                        {% for option in question.options|sort(attribute='order') %}
+                                            {{ toggle_button(   name=question.id|string,
                                                                 data_on=option.label,
                                                                 data_off=option.label,
-                                                                checked=option in student.answers,
+                                                                checked=option.id in question.answers_ids,
                                                                 action="sendAnswer(this, " + student.id|string + ", " + option.id|string + ")") }}
-                                    {% endfor %}
-                                {% elif question.question_type == 'RS' %}
-                                    {{ range_select( name = question.id|string,
+                                        {% endfor %}
+                                    {% elif question.question_type == 'RS' %}
+                                        {{ range_select( name = question.id|string,
                                                     options = question.options,
-                                                    answers = student.answers,
+                                                    answers_ids = question.answers_ids,
                                                     action_select = "postAnswer("+ student.id|string +", value)")}}
                                 {% endif %}
                                 </div>
@@ -156,6 +157,10 @@
             }
         });
 
+        $( document ).ajaxError(function (event, jqxhr) {
+            window.location.reload()
+        });
+
         function deleteAnswer(id_student, id_option) {
             var delete_url = "{{ url_for('.send_answer', id_student='.id_student.', id_option='.id_option.') }}"
                 .replace('.id_student.', id_student)
@@ -163,11 +168,15 @@
 
             $.ajax({
                 url: delete_url,
-                type: 'DELETE',
-                success: function (res) {
-                    console.log(res)
-                }
-            });
+                type: 'DELETE'
+            })
+
+                .done(function (data, textStatus, jqXHR) {
+                    console.log(data, textStatus);
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                });
         }
 
         function postAnswer(id_student, id_option) {
@@ -177,11 +186,14 @@
 
             $.ajax({
                 url: post_url,
-                type: 'POST',
-                success: function (result) {
-                    console.log(result);
-                }
-            });
+                type: 'POST'
+            })
+                .done(function (data, textStatus, jqXHR) {
+                    console.log(data, textStatus);
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                });
         }
 
 
