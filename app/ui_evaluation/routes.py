@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, current_app, jsonify
+from flask import render_template, flash, redirect, url_for, current_app, jsonify, abort
 from flask_login import login_required, current_user
 from app.ui_evaluation import bp
 from potion_client.exceptions import ItemNotFound
@@ -6,6 +6,7 @@ from flask import request
 from datetime import datetime
 import pytz
 import sys, operator
+from markupsafe import Markup
 from collections import defaultdict
 
 
@@ -51,6 +52,7 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
     methods=['GET'])
 @login_required
 def exam(id_ecoe, id_station, id_shift, id_round, order_student):
+
     ecoe = current_user.api_client.Ecoe.fetch(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
@@ -61,10 +63,18 @@ def exam(id_ecoe, id_station, id_shift, id_round, order_student):
 
     try:
         student = current_user.api_client.Student.first(where={"planner": planner, "planner_order": order_student})
+
+        for qblock in qblocks:
+            for question in qblock.questions:
+                options_set = set({option.id: option for option in question.options})
+                answers_set = set({answer.id: answer for answer in student.answers})
+                question.answers_ids = list(answers_set.intersection(options_set))
+
     except ItemNotFound:
         student = None
 
     previous_student = order_student + 1
+
     next_student = order_student - 1
 
     if next_student <= 0:
@@ -94,6 +104,7 @@ def outside_station(ecoe_id, round_id):
 @bp.route('/student/<id_student>/option/<id_option>', methods=['POST','DELETE'])
 @login_required
 def send_answer(id_student, id_option):
+    # TODO: Recover parameters by request form
     option = current_user.api_client.Option(id_option)
     student = current_user.api_client.Student(id_student)
 
@@ -102,13 +113,13 @@ def send_answer(id_student, id_option):
             student.add_answers(option)
             return jsonify({'status': 204})
         except:
-            print('Error al borrar', sys.exc_info()[0])
-            return jsonify({'status': 404})
+            print('POST answer error', sys.exc_info()[0])
+            abort(404)
 
     elif request.method == 'DELETE':
         try:
             student.remove_answers(option)
             return jsonify({'status': 204})
         except:
-            print('Error al borrar', sys.exc_info()[0])
-            return jsonify({'status': 404})
+            print('DELETE answer error', sys.exc_info()[0])
+            abort(404)

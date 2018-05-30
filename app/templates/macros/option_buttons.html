@@ -19,13 +19,12 @@
     </div>
 {% endmacro %}
 
-{#TODO: Create macro for radio button group#}
-{% macro select_button(name, options, answers=[], action="", class_btn="", class_group="") %}
+{% macro select_button(name, options, answers_ids={}, action="", class_btn="", class_group="") %}
     <div class="radio">
         <div class="btn-group-vertical {{ class_group }}" role="group" data-toggle="buttons">
             {% set ns_option = namespace(selected=None) %}
             {% for option in options|sort(attribute='order') %}
-                {% if option in answers %}{% set ns_option.selected = option.id %}{% else %}
+                {% if option.id in answers_ids %}{% set ns_option.selected = option.id %}{% else %}
                     {% set ns_option.selected = None %}{% endif %}
                 <label class="btn btn-outline {{ class_btn }} {% if ns_option.selected %}active{% endif %}">
                     <input type="radio" autocomplete="off"
@@ -40,11 +39,12 @@
     </div>
 {% endmacro %}
 
-{% macro range_select(name, options, answers=[], action_select=None, class="") %}
+{% macro range_select(name, options, answers_ids={}, action_select=None, class="") %}
     <div class="custom-select">
+        <option value=''></option>
         <select id="range_{{ name }}" class="{{ class }}">
             {% for option in options|sort(attribute='order', reverse=False) %}
-                <option value={{ option.id }} {% if option in answers %}selected{% endif %}>{{ option.label }}</option>
+                <option value={{ option.id }} {% if option.id in answers_ids %}selected{% endif %}>{{ option.label }}</option>
             {% endfor %}
         </select>
         <script type="text/javascript">
@@ -52,9 +52,12 @@
                 $('#range_{{ name }}').barrating({
                     theme: 'bars-1to10',
                     reverse: false,
+                    allowEmpty: true,
                     {% if action_select %}
                         onSelect: function (value, text, event) {
-                            {{ action_select }}
+                            if (value !== '') {
+                                {{ action_select }}
+                            }
                         },
                     {% endif %}
                 })
