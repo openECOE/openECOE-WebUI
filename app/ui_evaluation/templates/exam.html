@@ -1,5 +1,6 @@
 {% extends "app_base.html" %}
 {% from 'macros.html' import info_chrono_station, client_eval_socket %}
+{% from 'macros/option_buttons.html' import toggle_button, range_select, select_button %}
 
 {% block content %}
     <div class="container">
@@ -18,9 +19,9 @@
                 <table class="table table-condensed text-center">
                     <thead>
                     <tr>
-                        <td>Día - Turno</td>
-                        <td>Rueda</td>
-                        <td>Num</td>
+                        <td class="col-xs-3">Día - Turno</td>
+                        <td class="col-xs-3">Rueda</td>
+                        <td class="col-xs-6">Num</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -29,15 +30,15 @@
                         <td>{{ planner.shift.shift_code }}</td>
                         <td>{{ planner.round.round_code }}</td>
                         <td class="row">
-                            <div class="col-xs-12 col-md-5">
+                            <div class="col-xs-12 col-sm-5">
                                 <a class="btn btn-warning btn-block"
                                    role="button"
                                    href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=previous_student) }}">
                                     <span class="glyphicon glyphicon-chevron-left"></span>
                                 </a>
                             </div>
-                            <div class="col-xs-12 col-md-2 text-center">{{ order_student }}</div>
-                            <div class="col-xs-12 col-md-5">
+                            <div class="col-xs-12 col-sm-2 text-center">{{ order_student }}</div>
+                            <div class="col-xs-12 col-sm-5">
                                 <a class="btn btn-info btn-block"
                                    role="button"
                                    href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
@@ -61,69 +62,64 @@
                 </div>
             </div>
         {% else %}
-            {% for qblock in qblocks %}
+            {% for qblock in qblocks|sort(attribute='order') %}
                 <table class="table table-striped table-hover">
                     <thead>
                     <h4><span
-                                    class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span>
-                            </h4>
+                            class="label label-success">{{ qblock.name }} ({{ qblock.questions|length }})</span>
+                    </h4>
                     <tr>
-                        <th class="col-xs-1">
+                        <th class="hidden-xs col-sm-1">
                             <span>Num</span>
                         </th>
-                        <th class="col-xs-7">Enunciado</th>
-                        <th class="col-xs-2">Referencia</th>
-                        <th class="col-xs-2">Opciones</th>
+                        <th class="col-xs-6 col-sm-7 col-md-8">Enunciado</th>
+                        <th class="hidden-xs col-xs-6 col-sm-4 col-md-3">Referencia</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for question in qblock.questions|sort(attribute='order') %}
                         <tr>
-                            <td>{{ question.order }}</td>
-                            <td>{{ question.description }}</td>
-                            <td>{{ question.reference }}</td>
-                            <td>
-                                {% if question.question_type == 'RB' and question.options|length > 4 %}
-                                    <div class="input-group">
-                                        <select class="custom-select" id="selector{{ question.id }}"
-                                                onchange="postAnswer({{ student.id }}, this.value)">
-                                            {% for option in question.options|sort(attribute='order') %}
-                                                <option value="{{ option.id }}"
-                                                        {% if option in student.answers %}selected{% endif %}>{{ option.label }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                {% else %}
-                                    <div class="row form-check form-check-inline">
-                                        {% for option in question.options|sort(attribute='order') %}
-                                            <h4 class="col col-xs-12 col-sm-{{ (12 / question.options|length)|int }}">
-                                                {% if question.question_type == 'CH' %}
-                                                    <label class="form-check-label">
-                                                        <input type="checkbox"
-                                                               class="form-check-input"
-                                                               name="checkbox{{ question.id }}"
-                                                               value="{{ option.id }}"
-                                                               {% if option in student.answers %}checked{% endif %}
-                                                               onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})"/>
-                                                        {{ option.label }}
-                                                    </label>
-
-                                                {% elif question.question_type == 'RB' %}
-                                                    <label class="form-check-label">
-                                                        <input type="radio"
-                                                               class="form-check-input"
-                                                               name="radiobutton{{ question.id }}"
-                                                               value="{{ option.id }}"
-                                                               placeholder="{{ student.id }}"
-                                                               {% if option in student.answers %}checked{% endif %}
-                                                               onchange="sendAnswer(this, {{ student.id }}, {{ option.id }})">
-                                                        {{ option.label }}
-                                                    </label>
-                                                {% endif %}
-                                            </h4>
-                                        {% endfor %}
-                                    </div>
+                            <td class="hidden-xs">{{ question.order }}</td>
+                            <td class="col-xs-12 col-sm-7 col-md-8 pull-left-xs text-right-xs">{{ question.description }}</td>
+                            <td class="col-xs-12 col-sm-4 col-md-3 pull-left-xs text-right-xs">
+                                <span class="col-xs-12">{{ question.reference }}</span>
+                                <div class="col-xs-12 pull-right-xs">
+                                {% if question.question_type == 'RB' %}
+                                    {% if question.options|length > 2 %}
+                                        {{ select_button(   name=question.id|string,
+                                                            options = question.options,
+                                                            answers = student.answers,
+                                                            action = "sendAnswer(this, " + student.id|string + ", this.value)",
+                                                            class_btn = "btn-success",
+                                                            class_group = "col-xs-12")}}
+                                    {% elif question.options|length == 2 %}
+                                        {{ toggle_button(   name=question.options[0].id|string,
+                                                            data_on=question.options[0].label,
+                                                            data_off=question.options[1].label,
+                                                            checked=question.options[0] in student.answers,
+                                                            action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")") }}
+                                    {% elif question.options|length == 1 %}
+                                        {{ toggle_button(   name=question.id|string,
+                                                            data_on=question.options[0].label,
+                                                            data_off=question.options[0].label,
+                                                            checked=question.options[0] in student.answers,
+                                                            action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")") }}
+                                    {% endif %}
+                                {% elif question.question_type == 'CH' %}
+                                    {% for option in question.options|sort(attribute='order') %}
+                                        {{ toggle_button(   name=question.id|string,
+                                                                data_on=option.label,
+                                                                data_off=option.label,
+                                                                checked=option in student.answers,
+                                                                action="sendAnswer(this, " + student.id|string + ", " + option.id|string + ")") }}
+                                    {% endfor %}
+                                {% elif question.question_type == 'RS' %}
+                                    {{ range_select( name = question.id|string,
+                                                    options = question.options,
+                                                    answers = student.answers,
+                                                    action_select = "postAnswer("+ student.id|string +", value)")}}
                                 {% endif %}
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
@@ -141,8 +137,6 @@
             </a>
         </div>
     </div>
-
-    {{ super() }}
 {% endblock %}
 
 
@@ -163,7 +157,7 @@
         });
 
         function deleteAnswer(id_student, id_option) {
-            var delete_url = "{{ url_for('.delete_answer', id_student='.id_student.', id_option='.id_option.') }}"
+            var delete_url = "{{ url_for('.send_answer', id_student='.id_student.', id_option='.id_option.') }}"
                 .replace('.id_student.', id_student)
                 .replace('.id_option.', id_option);
 
