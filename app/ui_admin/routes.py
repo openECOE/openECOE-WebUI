@@ -4,6 +4,8 @@ from app.ui_admin import bp
 from app.ui_admin.forms import LoginForm, AddAreaForm, AddStationForm, AddStudentForm
 from potion_client.exceptions import ItemNotFound
 from flask import request
+import requests
+
 
 @bp.route('/', methods=['GET'])
 @bp.route('/index/', methods=['GET'])
@@ -13,10 +15,73 @@ def home():
     return render_template('index.html', ecoes=ecoes)
 
 
+def _create_chrono_config(ecoe):
+
+    stages = []
+    stage_events = {}
+    schedules = current_user.api_client.Ecoe(ecoe.id).schedules
+
+    for sch in schedules:
+        if sch.stage not in stages:
+            stages.append(sch.stage)
+            stage_events.update({sch.stage.id: []})
+
+        for ev in sch.events:
+            stage_events[sch.stage.id].append({
+                "t": ev.time,
+                "accion": ev.text,
+                "sound": ev.sound,
+                "estaciones": [0] + [station.id for station in ecoe.stations] if sch.station is None else [sch.station.id],
+                "is_countdown": ev.is_countdown
+            })
+
+    config = {
+        "ruedas": [r.id for r in ecoe.rounds],
+        "vueltas": len(ecoe.stations),  # TODO: consider report/dependant stations
+        "planificaciones": [
+            {'fase':st.name, 'duracion':st.duration, 'eventos':stage_events[st.id]} for st in stages
+        ]
+    }
+
+    return config
+
+
 @bp.route('/ecoe/<int:id_ecoe>/rounds')
 @login_required
 def roundsChronos(id_ecoe):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
+
+    chrono_config = _create_chrono_config(ecoe)
+
+    """
+    chrono_config = {
+        'ruedas': [1, 2],
+        'vueltas': 2,
+        'planificaciones': [
+            {
+                'fase': 'EVALUACION',
+                'duracion': 70,
+                'eventos': [
+                    {'t': 0, 'accion': 'entrar', 'sound': 'entrar_ogg', 'estaciones': [0]},
+                    {'t': 30, 'accion': 'aviso_3_min', 'sound': 'aviso_3_min.ogg', 'estaciones': [1]},
+                    {'t': 70, 'accion': 'salir', 'sound': 'salir.ogg', 'estaciones': [0]}
+                ]
+            },
+            {
+                'fase': 'DESCANSO',
+                'duracion': 5,
+                'eventos': []
+            }
+        ]
+    }
+    """
+
+    try:
+        response = requests.post(current_app.config.get('CHRONO_ROUTE') + '/load',
+                     headers={'content-type': 'application/json'},
+                     json=chrono_config)
+    except Exception as e:
+        print('Error %s' % str(e))
 
     rounds = [
         {'id': r.id, 'chrono_route': current_app.config.get('CHRONO_ROUTE') + "/round%d" % r.id}
