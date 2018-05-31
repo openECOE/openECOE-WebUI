@@ -89,25 +89,20 @@
                                 <span class="col-xs-12">{{ question.reference }}</span>
                                 <div class="col-xs-12 pull-right-xs">
                                     {% if question.question_type == 'RB' %}
-                                        {% if question.options|length > 2 %}
+                                        {% if question.options|length == 1 %}
+                                            {{ toggle_button(   name=question.id|string,
+                                                            data_on=question.options[0].label,
+                                                            data_off=question.options[0].label,
+                                                            checked=question.options[0].id in question.answers_ids,
+                                                            data_onstyle="success" if question.options[0].points >= 0 else "danger",
+                                                            action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")")}}
+                                        {% else %}
                                             {{ select_button(   name=question.id|string,
                                                             options = question.options,
                                                             answers_ids = question.answers_ids,
                                                             action = "sendAnswer(this, " + student.id|string + ", this.value)",
                                                             class_btn = "btn-success",
                                                             class_group = "col-xs-12") }}
-                                        {% elif question.options|length == 2 %}
-                                            {{ toggle_button(   name=question.options[0].id|string,
-                                                            data_on=question.options[0].label,
-                                                            data_off=question.options[1].label,
-                                                            checked=question.options[0].id in question.answers_ids,
-                                                            action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")") }}
-                                        {% elif question.options|length == 1 %}
-                                            {{ toggle_button(   name=question.id|string,
-                                                            data_on=question.options[0].label,
-                                                            data_off=question.options[0].label,
-                                                            checked=question.options[0].id in question.answers_ids,
-                                                            action="sendAnswer(this, " + student.id|string + ", " + question.options[0].id|string + ")") }}
                                         {% endif %}
                                     {% elif question.question_type == 'CH' %}
                                         {% for option in question.options|sort(attribute='order') %}
@@ -115,7 +110,8 @@
                                                                 data_on=option.label,
                                                                 data_off=option.label,
                                                                 checked=option.id in question.answers_ids,
-                                                                action="sendAnswer(this, " + student.id|string + ", " + option.id|string + ")") }}
+                                                                data_onstyle= "success" if option.points >= 0 else "danger",
+                                                                action="sendAnswer(this, " + student.id|string + ", " + option.id|string + ")")}}
                                         {% endfor %}
                                     {% elif question.question_type == 'RS' %}
                                         {{ range_select( name = question.id|string,
