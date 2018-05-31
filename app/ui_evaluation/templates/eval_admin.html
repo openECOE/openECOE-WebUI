@@ -44,7 +44,7 @@
                                         <p>
                                             <a class="btn btn-lg {% if shift.time_start > now %}btn-warning{% else %}btn-success{% endif %}"
                                                role="button"
-                                               href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id, order_student=station.order) }}">
+                                               href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id) }}">
                                                 <span class="col col-xs-12">{{ shift.shift_code }} - {{ moment(shift.time_start).format('HH:mm') }}</span>
                                                 <span class="col-xs-12 small">{{ moment(shift.time_start).fromTime(now) }}</span>
                                             </a>

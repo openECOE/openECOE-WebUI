@@ -47,11 +47,25 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
     return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts)
 
 
-@bp.route(
-    '/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>',
-    methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
+@bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order>',
+          methods=['GET'])
 @login_required
-def exam(id_ecoe, id_station, id_shift, id_round, order_student):
+def exam(id_ecoe, id_station, id_shift, id_round, order=1):
+
+    def get_stu_order(round_order, station, stations_cont):
+        k = stations_cont - 1
+
+        # Allow more rounds than stations to cycle students
+        if round_order > stations_cont:
+            round_order = round_order - stations_cont
+
+        if round_order == 1:
+            return station
+        elif station == round_order - 1:
+            return get_stu_order(round_order - 1, station, stations_cont) + k
+        else:
+            return get_stu_order(round_order - 1, station, stations_cont) - 1
 
     ecoe = current_user.api_client.Ecoe.fetch(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
@@ -61,6 +75,18 @@ def exam(id_ecoe, id_station, id_shift, id_round, order_student):
 
     stations_count = len(ecoe.stations)
 
+    order_student = get_stu_order(order, actual_station.order, stations_count)
+
+    order_previous = order - 1
+    order_next = order + 1
+
+    if order_previous == 0:
+        order_previous = None
+
+    if (order_next > stations_count and actual_station.parent_station is None) \
+            or order_next > stations_count + 1:  # Only allow one more round
+        order_next = None
+
     try:
         student = current_user.api_client.Student.first(where={"planner": planner, "planner_order": order_student})
 
@@ -69,25 +95,26 @@ def exam(id_ecoe, id_station, id_shift, id_round, order_student):
                 options_set = set({option.id: option for option in question.options})
                 answers_set = set({answer.id: answer for answer in student.answers})
                 question.answers_ids = list(answers_set.intersection(options_set))
-
     except ItemNotFound:
         student = None
 
-    previous_student = order_student + 1
+    #If it's an station with parent, first round doesn't apply for this student
+    if actual_station.parent_station and order == 1:
 
-    next_student = order_student - 1
+        name_parent_station = str(actual_station.parent_station.order) + ' - ' + actual_station.parent_station.name
+        student = None
 
-    if next_student <= 0:
-        next_student = stations_count
-
-    if previous_student > stations_count:
-        previous_student = 1
+        flash(Markup('<h3>Esta estación depende de la estación '
+                     '<strong>'+name_parent_station+'</strong></h3>'
+                    '<p>La primera vuelta no tiene asignado ningún alumno para su evaluación</p>'
+                    '<p>El primer alumno se evalua en la última vuelta.</p>'),
+              'warning')
 
     chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % planner.round.id
 
     return render_template('exam.html', chrono_route=chrono_route, ecoe=ecoe, station=actual_station, qblocks=qblocks,
-                           planner=planner, student=student, order_student=order_student, next_student=next_student,
-                           previous_student=previous_student)
+                           planner=planner, student=student, order_next=order_next,
+                           order_previous=order_previous)
 
 
 @bp.route('/ecoe/<int:ecoe_id>/round/<int:round_id>/outside')
@@ -101,7 +128,7 @@ def outside_station(ecoe_id, round_id):
     return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, round=round, station_id=0)
 
 
-@bp.route('/student/<id_student>/option/<id_option>', methods=['POST','DELETE'])
+@bp.route('/student/<id_student>/option/<id_option>', methods=['POST', 'DELETE'])
 @login_required
 def send_answer(id_student, id_option):
     # TODO: Recover parameters by request form

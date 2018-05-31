@@ -1,9 +1,9 @@
-{% extends "app_base.html" %}
+{% extends "eval_base.html" %}
 {% from 'macros/chrono.html' import info_chrono_station, client_eval_socket %}
 {% from 'macros/option_buttons.html' import toggle_button, range_select, select_button %}
 
 {% block content %}
-    {{util.flashed_messages(dismissible=True)}}
+    {{util.flashed_messages(dismissible=False)}}
     <div class="container">
         <div class="row">
             <div class="col-xs-12 col-md-6">
@@ -15,8 +15,11 @@
                 </h3>
                 <div>{{ info_chrono_station() }}</div>
             </div>
+
             <div class="col-xs-12 col-md-6 text-right">
+                {% if student %}
                 <h3>{{ student.surnames }}, {{ student.name }}</h3>
+                {% endif %}
                 <table class="table table-condensed text-center">
                     <thead>
                     <tr>
@@ -32,17 +35,17 @@
                         <td>{{ planner.round.round_code }}</td>
                         <td class="row">
                             <div class="col-xs-12 col-sm-5">
-                                <a class="btn btn-warning btn-block"
+                                <a class="btn btn-warning btn-block {% if order_previous == None %}disabled{% endif %}"
                                    role="button"
-                                   href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=previous_student) }}">
+                                   href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order=order_previous) }}">
                                     <span class="glyphicon glyphicon-chevron-left"></span>
                                 </a>
                             </div>
-                            <div class="col-xs-12 col-sm-2 text-center">{{ order_student }}</div>
+                            <div class="col-xs-12 col-sm-2 text-center">{{ student.planner_order }}</div>
                             <div class="col-xs-12 col-sm-5">
-                                <a class="btn btn-info btn-block"
+                                <a class="btn btn-info btn-block {% if order_next == None %}disabled{% endif %}"
                                    role="button"
-                                   href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
+                                   href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order=order_next) }}">
                                     <span class="glyphicon glyphicon-chevron-right"></span>
                                 </a>
                             </div>
@@ -129,13 +132,21 @@
             {% endfor %}
         {% endif %}
         <div class="col-md-offset-8 col-xs-12 col-md-4 text-right">
+            {% if order_next %}
             <a class="btn btn-info btn-lg btn-block"
                role="button"
-               href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order_student=next_student) }}">
-
+               href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=planner.shift.id, id_round=planner.round.id, order=order_next) }}">
                 Siguiente alumno
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
+            {% else %}
+            <a class="btn btn-success btn-lg btn-block"
+               role="button"
+               href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=planner.round.id, id_station=station.id) }}">
+                Ronda finalizada
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
