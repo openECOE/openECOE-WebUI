@@ -19,14 +19,14 @@
     </div>
 {% endmacro %}
 
-{% macro select_button(name, options, answers_ids={}, action="", class_btn="", class_group="") %}
+{% macro select_button(name, options, answers_ids={}, action="", class_btn="btn-success", class_btn_negative="btn-danger", class_group="") %}
     <div class="radio">
         <div class="btn-group-vertical {{ class_group }}" role="group" data-toggle="buttons">
             {% set ns_option = namespace(selected=None) %}
             {% for option in options|sort(attribute='order') %}
                 {% if option.id in answers_ids %}{% set ns_option.selected = option.id %}{% else %}
                     {% set ns_option.selected = None %}{% endif %}
-                <label class="btn btn-outline {{ class_btn }} {% if ns_option.selected %}active{% endif %}">
+                <label class="btn btn-outline {{ class_btn if option.points >= 0 else class_btn_negative }} {% if ns_option.selected %}active{% endif %}">
                     <input type="radio" autocomplete="off"
                            name="radiobutton_{{ name }}"
                            value="{{ option.id }}"
