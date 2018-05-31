@@ -1,6 +1,5 @@
 {% extends "app_base.html" %}
-{% from 'macros.html' import modal_upload_csv %}
-{% from 'macros.html' import make_dropdown_selected, enable_disable_dropdown_selected %}
+{% from 'macros/chrono.html' import make_dropdown_selected, enable_disable_dropdown_selected %}
 
 {% block content %}
 
@@ -28,7 +27,7 @@
     </div>
     <!-- end modal -->
 
-    {{ utils.flashed_messages(dismissible=True) }}
+    {{ util.flashed_messages(dismissible=True) }}
 
     <div class="container">
 
