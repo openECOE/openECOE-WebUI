@@ -1,5 +1,25 @@
 {% extends "app_base.html" %}
+{% from 'macros.html' import ajax_setup %}
+
 {% block content %}
+
+    <!-- modal for warnings to the user -->
+    <div class="modal fade" id="info_warnings" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Información</h4>
+          </div>
+          <div class="modal-body">
+            <p id="mymessage"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     <div class="container">
 
@@ -42,13 +62,19 @@
 
         $(document).ready(function () {
 
+            {{ ajax_setup() }}
+
             $("#start").click(function (event) {
 
                 $.ajax({
-                    url: '{{ actions_url['start'] }}',
-
+                    url: "{{ url_for('.start_chronos', id_ecoe=id_ecoe) }}",
+                    type: 'POST',
                     success: function (res) {
                         console.log(res)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#mymessage').html(xhr.responseText);
+                        $('#info_warnings').modal('show');
                     }
                 });
             });
@@ -56,10 +82,14 @@
             $("#pauseall").click(function (event) {
 
                 $.ajax({
-                    url: '{{ actions_url['pause'] }}',
-
+                    url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause') }}",
+                    type: 'POST',
                     success: function (res) {
                         console.log(res)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#mymessage').html(xhr.responseText);
+                        $('#info_warnings').modal('show');
                     }
                 });
 
@@ -68,10 +98,14 @@
             $("#playall").click(function (event) {
 
                 $.ajax({
-                    url: '{{ actions_url['play'] }}',
-
+                    url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='play') }}",
+                    type: 'POST',
                     success: function (res) {
                         console.log(res)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#mymessage').html(xhr.responseText);
+                        $('#info_warnings').modal('show');
                     }
                 });
             });
@@ -114,10 +148,14 @@
                 $("#play{{ r['id'] }}").click(function (event) {
 
                     $.ajax({
-                        url: '{{ actions_url['play'] }}/{{ r['id'] }}',
-
+                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='play', round_id=r['id']) }}",
+                        type: 'POST',
                         success: function (res) {
-                            console.log(res);
+                            console.log(res)
+                        },
+                        error: function(xhr, status, error) {
+                            $('#mymessage').html(xhr.responseText);
+                            $('#info_warnings').modal('show');
                         }
                     });
 
@@ -126,10 +164,14 @@
                 $("#pause{{ r['id'] }}").click(function (event) {
 
                     $.ajax({
-                        url: '{{ actions_url['pause'] }}/{{ r['id'] }}',
-
+                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause', round_id=r['id']) }}",
+                        type: 'POST',
                         success: function (res) {
                             console.log(res)
+                        },
+                        error: function(xhr, status, error) {
+                            $('#mymessage').html(xhr.responseText);
+                            $('#info_warnings').modal('show');
                         }
                     });
 
