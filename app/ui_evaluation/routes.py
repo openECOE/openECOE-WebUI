@@ -53,7 +53,7 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>/order/<int:order_student>', methods=['GET'])
 @login_required
-def exam(id_ecoe, id_station, id_shift, id_round, order_student = None):
+def exam(id_ecoe, id_station, id_shift, id_round, order_student=None):
     ecoe = current_user.api_client.Ecoe(id_ecoe)
     actual_station = current_user.api_client.Station(id_station)
     planner = current_user.api_client.Planner.first(where={"shift": id_shift, "round": id_round})
