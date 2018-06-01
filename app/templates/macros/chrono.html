@@ -14,7 +14,7 @@
 
 {% endmacro %}
 
-{% macro client_eval_socket(chrono_route, station_id, id_round) %}
+{% macro client_eval_socket(chrono_route, station_id, id_round, is_outside_station=False) %}
 
     $('#myaudio').hide();
 
@@ -33,6 +33,10 @@
 
     socket.on('init_stage', function(msg) {
         $('#clock').fadeOut('fast').fadeIn('fast');
+
+        {% if is_outside_station %}
+            $('#vuelta').text(msg.num_rerun + "/" + msg.total_reruns);
+        {% endif %}
     });
 
     socket.on('evento', function(msg) {
@@ -50,6 +54,10 @@
 
     socket.on('tic_tac', function(msg) {
         $('#clock').text(msg.stage.name + " " + msg.minutes + ":" + msg.seconds);
+
+        {% if is_outside_station %}
+            $('#vuelta').text(msg.num_rerun + "/" + msg.total_reruns);
+        {% endif %}
 
         if (msg.stopped == 'S') {
             $('#clock').css("color", "red");
