@@ -1,14 +1,15 @@
 {% extends "eval_base.html" %}
-{% from 'macros/chrono.html' import info_chrono_station, client_eval_socket %}
+{% from 'macros/chrono.html' import info_chrono_station, client_eval_socket, chrono_progress %}
 
 {% block content %}
 
-<div class="container-fluid">
+<div class="container">
 
-    <h2>{{ ecoe.name }} / {{ round.round_code }}</h2>
 
-    {{ info_chrono_station() }}
-
+    <div class="col-md-push-3 col-md-6">
+        <h2>{{ ecoe.name }} / {{ round.round_code }}</h2>
+        {{ chrono_progress(config_chrono) }}
+    </div>
 </div>
 
 {% endblock %}
@@ -16,14 +17,5 @@
 {% block scripts %}
     {{ super() }}
 
-    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}" ></script>
-
-    <script>
-
-        $(document).ready(function() {
-            {{ client_eval_socket(chrono_route, station_id, round.id) }}
-        });
-
-    </script>
-
+    {{ client_eval_socket(chrono_route, station_id, round.id, config_chrono=config_chrono) }}
 {% endblock %}

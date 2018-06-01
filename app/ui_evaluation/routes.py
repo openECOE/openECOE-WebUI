@@ -123,9 +123,15 @@ def outside_station(ecoe_id, round_id):
     ecoe = current_user.api_client.Ecoe(ecoe_id)
     round = current_user.api_client.Round(round_id)
 
+    config_chrono = ecoe.read_configuration()
+
+    round_time = sum({schedule['duration']: schedule for schedule in config_chrono['schedules']})
+
+    config_chrono['round_time'] = round_time
+
     chrono_route = current_app.config.get('CHRONO_ROUTE') + "/round%d" % round_id
 
-    return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, round=round, station_id=0)
+    return render_template('outside_station.html', chrono_route=chrono_route, ecoe=ecoe, round=round, station_id=0, config_chrono=config_chrono)
 
 
 @bp.route('/student/<id_student>/option/<id_option>', methods=['POST', 'DELETE'])

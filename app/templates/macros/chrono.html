@@ -1,73 +1,155 @@
 {% macro info_chrono_station() %}
     <div><h1 id="clock">--:--</h1></div>
 
-    <audio class="audios" id="myaudio" controls preload="none">
-       <source src="" type="audio/mpeg">
-    </audio>
+
+{% endmacro %}
+
+{% macro chrono_progress(config_chrono=None) %}
+    <div class="chrono col-xs-12">
+        <h2 class="labels text-right pull-left">
+            <span class="label label-info stage">00:00</span>
+        </h2>
+        <h3 class="labels text-left pull-right">
+            <span class="label label-warning countdown">00:00</span>
+        </h3>
+    </div>
+    <div class="chrono col-xs-12">
+        <div class="events">
+        </div>
+        <div class="progress">
+            <div class="progress-bar progress-bar-info"
+                 role="progressbar"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                 style="width: 0">
+                <span class=""></span>
+            </div>
+
+        </div>
+        <audio class="audios hidden" id="myaudio" controls preload="none">
+            <source src="" type="audio/mpeg">
+        </audio>
+    </div>
+    {#    If we have chrono config, show additional information about progress#}
+    {% if config_chrono %}
+        <div class="chrono col-xs-12">
+            <div class="info">
+                <h2><span class="label label-primary">Vueltas realizadas <span class="reruns">0</span> / {{ config_chrono.reruns }}</span></h2>
+                <h2><span class="label label-primary">Hora estimada finalización <span class="finish_time"></span></h2>
+                {{ config_chrono.total_time }}
+            </div>
+        </div>
+    {% endif %}
+
 {% endmacro %}
 
 {% macro info_chrono_admin(rounds) %}
 
     {% for r in rounds %}
-        <div><h1>Rueda {{ r.id }} (vuelta <span id="vuelta{{ r.id }}"></span>): <span id="clock{{ r.id }}">--:--</span></h1></div>
+        <div><h1>Rueda {{ r.id }} (vuelta <span id="vuelta{{ r.id }}"></span>): <span id="clock{{ r.id }}">--:--</span>
+        </h1></div>
     {% endfor %}
 
 {% endmacro %}
 
-{% macro client_eval_socket(chrono_route, station_id, id_round) %}
+{% macro client_eval_socket(chrono_route, station_id, id_round, config_chrono=None) %}
+    <script type='text/javascript' src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+    <script type='text/javascript' src="{{ url_for('static', filename='js/openecoe.chrono.js') }}"></script>
+    <script type='text/javascript'>
+        $(document).ready(function () {
 
-    $('#myaudio').hide();
+            {#TODO: Establecer colores por configuración#}
+            let stage_color = {
+                'Evaluación': '#5bc0de',
+                'Descanso': '#5cb85c',
+                'Error': '#d9534f',
+                'Warning': '#f0ad4e'
+            };
 
-    /*** SOCKETS ***/
+            /*** SOCKETS ***/
 
-    var socket = io.connect('{{ chrono_route }}');
+            var socket = io.connect('{{ chrono_route }}');
 
-    socket.on('connect', function () {
-        console.log('Estación {{ station_id }}: conectada a rueda {{ id_round }}')
-    });
+            socket.on('connect', function () {
+                console.log('Estación {{ station_id }}: conectada a rueda {{ id_round }}')
+            });
 
-    socket.on('end_round', function(msg) {
-        $('#clock').css("color", "green").show('slow');
-        console.log(msg.data)
-    });
+            socket.on('end_round', function (msg) {
+                $('#clock').css("color", "green").show('slow');
+                console.log(msg.data)
+            });
 
-    socket.on('init_stage', function(msg) {
-        $('#clock').fadeOut('fast').fadeIn('fast');
-    });
+            socket.on('init_stage', function (msg) {
+                $(".chrono > .labels > .stage").fadeOut('fast').fadeIn('fast');
+            });
 
-    socket.on('evento', function(msg) {
-        if (jQuery.inArray({{ station_id }}+"", msg.target.split(",")) >= 0) {
-            console.log("[" + msg.stage + "] " + msg.data + " => " + msg.target)
-            $("#myaudio").attr('src', '{{ url_for('static', filename='sounds/') }}'+msg.sound)
-            $('#myaudio').trigger('play');
-        }
-    });
+            socket.on('evento', function (msg) {
+                if ($.inArray("{{ station_id }}", msg.target.split(",")) >= 0) {
+                    if (msg.sound != null) {
+                        console.log("[" + msg.stage + "] " + msg.data + " => " + msg.target);
+                        $("#myaudio").attr('src', '{{ url_for('static', filename='sounds/') }}' + msg.sound).trigger('play');
+                    }
+                }
+            });
 
-    socket.on('aborted', function(msg) {
-        $('#clock').css("color", "red");
-        $('#clock').text("EVALUACIÓN ABORTADA");
-    });
+            socket.on('aborted', function (msg) {
+                $(".chrono > .labels > .stage").html("Evaluación Detenida").css({"background-color": stage_color["Error"]});
+            });
 
-    socket.on('tic_tac', function(msg) {
-        $('#clock').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);
+            socket.on('tic_tac', function (msg) {
+                let percentComplete = (msg.t / msg.stage.duration) * 100;
+                let progress_bar = $(".chrono > div.progress > div.progress-bar");
+                let stage_label = $(".chrono > .labels > .stage");
+                let info_msg = "";
+                let color_name = msg.stage.name;
 
-        if (msg.stopped == 'S') {
-            $('#clock').css("color", "red");
-            console.log("[" + msg.minutes + ":" + msg.seconds + "] Crono parado");
-        }
-        else
-            $('#clock').css("color", "black");
-    });
+                if (msg.stopped == 'S') {
+                    info_msg = " [Crono pausado]";
+                    color_name = "Warning";
+                }
 
-    /*** END SOCKETS ***/
+                progress_bar.css({"width": percentComplete + "%", "background-color": stage_color[color_name]});
+                stage_label.html(moment((msg.stage.duration - msg.t) * 1000).format("mm:ss") + " " + msg.stage.name + info_msg).css({"background-color": stage_color[color_name]});
+
+                $(".chrono > .events").html(render_events(msg.stage.events, msg.stage.duration, msg.t, {{ station_id }}));
+
+                {% if config_chrono %}
+                    if (msg.stage.order == 0 || msg.stopped == "S") {
+                        $(".chrono > .info .reruns").html(msg.num_rerun);
+                        remaining_time = (({{ config_chrono.reruns }} - msg.num_rerun) + 1) * {{ config_chrono.round_time }}
+
+                            $(".chrono > .info .finish_time").html(moment().add((remaining_time - msg.t), "seconds").format("HH:mm"));
+                    }
+                {% endif %}
+
+
+
+                {#rounds_remaining = {{ config_chrono.reruns }} - msg.num_rerun;#}
+
+
+
+                {#$('#clock').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);#}
+                {##}
+                {#                if (msg.stopped == 'S') {#}
+                {#                    $('#clock').css("color", "red");#}
+                {#                    console.log("[" + msg.minutes + ":" + msg.seconds + "] Crono parado");#}
+                {#                }#}
+                {#                else#}
+                {#                    $('#clock').css("color", "black");#}
+            });
+        });
+
+        /*** END SOCKETS ***/
+    </script>
+
 {% endmacro %}
 
 {% macro make_dropdown(options, id_dropdown, labelText, labelIcon=none, classColor='btn-warning', disabled=False) %}
 
     <div class="dropdown">
-        <button class="btn {{ classColor }} dropdown-toggle" id="{{ id_dropdown }}" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {% if disabled %} disabled {% endif %}>
+        <button class="btn {{ classColor }} dropdown-toggle" id="{{ id_dropdown }}" type="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" {% if disabled %} disabled {% endif %}>
             {% if labelIcon %}
-            <i class="fa fa-{{ labelIcon }}-o" aria-hidden="true"></i>&nbsp;&nbsp;
+                <i class="fa fa-{{ labelIcon }}-o" aria-hidden="true"></i>&nbsp;&nbsp;
             {% endif %}
             {{ labelText }}
             <span class="caret"></span>
@@ -80,10 +162,10 @@
                 {% else %}
                     <li>
                         <a id="{{ option.id }}" href="#">
-                        {% if option.icon %}
-                        <i class="fa fa-{{ option.icon }}-o" aria-hidden="true"></i>&nbsp;&nbsp;
-                        {% endif %}
-                        {{ option.description }}
+                            {% if option.icon %}
+                                <i class="fa fa-{{ option.icon }}-o" aria-hidden="true"></i>&nbsp;&nbsp;
+                            {% endif %}
+                            {{ option.description }}
                         </a>
                     </li>
                 {% endif %}
@@ -100,10 +182,10 @@
 {% macro enable_disable_dropdown_selected(id_form, name, type='checkbox', id_dropdown='dd_selected') %}
 
     $("#{{ id_form }} input[type={{ type }}][name={{ name }}]").change(function () {
-        if (this.checked)
-            $('#{{ id_dropdown }}').attr('disabled', false);
-        else if ($("#{{ id_form }} input[type={{ type }}][name={{ name }}]:checked").length == 0)
-            $('#{{ id_dropdown }}').attr('disabled', true);
+    if (this.checked)
+    $('#{{ id_dropdown }}').attr('disabled', false);
+    else if ($("#{{ id_form }} input[type={{ type }}][name={{ name }}]:checked").length == 0)
+    $('#{{ id_dropdown }}').attr('disabled', true);
     });
 
 {% endmacro %}
