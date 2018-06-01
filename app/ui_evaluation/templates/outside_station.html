@@ -5,7 +5,7 @@
 
 <div class="container-fluid">
 
-    <h2>{{ ecoe.name }} / {{ round.round_code }}</h2>
+    <h2>{{ ecoe.name }} / {{ round.round_code }} (vuelta <span id="vuelta"></span>)</h2>
 
     {{ info_chrono_station() }}
 
@@ -21,7 +21,7 @@
     <script>
 
         $(document).ready(function() {
-            {{ client_eval_socket(chrono_route, station_id, round.id) }}
+            {{ client_eval_socket(chrono_route, station_id, round.id, True) }}
         });
 
     </script>
