@@ -203,3 +203,36 @@
         text-align: justify;
     }
 }
+
+.chrono .events{
+    position: relative;
+    width: 100%;
+}
+
+.chrono .events .event{
+    position: absolute;
+    width: fit-content;
+}
+
+.chrono .event > *{
+    z-index: 2;
+    margin-left: -50%;
+    text-align: center;
+    margin-top: 0.3rem;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.chrono .progress{
+    margin-bottom: 30px;
+}
+
+.chrono .labels {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    vertical-align: baseline;
+}
+
+/*.event p{*/
+    /*margin: 0.6rem 0 0;*/
+/*}*/
