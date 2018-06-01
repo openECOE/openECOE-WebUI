@@ -9,7 +9,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Información</h4>
+            <h4 class="modal-title" id="modaltitle">Información</h4>
           </div>
           <div class="modal-body">
             <p id="mymessage"></p>
@@ -33,6 +33,8 @@
                 <button id="playall" class="btn btn-primary btn-lg">Continuar todo</button>
             </div>
             </p>
+
+            <p><a href="#info_warnings" id="view_config" data-toggle="modal">Ver configuración</a></p>
         </div>
 
         <div class="col-xs-12 col-md-1-offset col-md-7">
@@ -60,9 +62,57 @@
 
     <script>
 
+        function getEcoeConfig(jsonFormat=false) {
+
+            var ecoeConfig;
+
+            if (jsonFormat) {
+                ecoeConfig = JSON.stringify({{ configuration|replace('False', '\"false\"')|replace('True', '\"true\"')|safe }}, null, 4);
+            }
+            else {
+                var schedules = "";
+
+                {% for schedule in configuration.schedules %}
+
+                    schedules +=
+                        "<p><ul>" +
+                        "<li><strong>Orden</strong>: {{ schedule.order }}</li>" +
+                        "<li><strong>Nombre</strong>: {{ schedule.name }}</li>" +
+                        "<li><strong>Duración</strong>: {{ schedule.duration }}</li>" +
+                        "<li><strong>Eventos</strong>: ";
+
+                    {% for event in schedule.events %}
+                        schedules +=
+                            "<p><ul>" +
+                            "<li><strong>Instante</strong>: {{ event.t }}</li>" +
+                            "<li><strong>Mensaje</strong>: {{ event.message }}</li>" +
+                            "<li><strong>Cuenta atrás</strong>: {{ event.is_countdown }}</li>" +
+                            "<li><strong>Sonido</strong>: {{ event.sound }}</li>" +
+                            "<li><strong>Ids estaciones destino</strong>: {{ event.stations }}</li>" +
+                            "</ul></p>";
+                    {% endfor %}
+
+                    schedules += "</ul></p>";
+
+                {% endfor %}
+
+                ecoeConfig =
+                    "<strong>Vueltas</strong>: {{ configuration.reruns }}<br>" +
+                    "<strong>Ids de rueda</strong>: {{ configuration.rounds_id }}<br>" +
+                    "<strong>Fases</strong>: " + schedules;
+            }
+
+            return ecoeConfig;
+        }
+
+
         $(document).ready(function () {
 
             {{ ajax_setup() }}
+
+            $('#view_config').click(function () {
+                $('#mymessage').html("<pre>"+getEcoeConfig()+"</pre>");
+            });
 
             $("#start").click(function (event) {
 

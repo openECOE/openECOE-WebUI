@@ -30,7 +30,7 @@ def roundsChronos(id_ecoe):
         for r in ecoe.rounds
     ]
 
-    return render_template('rounds_chronos.html', id_ecoe=id_ecoe, rounds=rounds)
+    return render_template('rounds_chronos.html', id_ecoe=id_ecoe, rounds=rounds, configuration=ecoe.read_configuration())
 
 
 @bp.route('/ecoe/<int:id_ecoe>/start', methods=['POST'])
