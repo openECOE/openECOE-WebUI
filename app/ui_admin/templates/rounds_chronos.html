@@ -162,17 +162,20 @@
 
             $("#pauseall").click(function (event) {
 
-                $.ajax({
-                    url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause') }}",
-                    type: 'POST',
-                    success: function (res) {
-                        console.log(res)
-                    },
-                    error: function(xhr, status, error) {
-                        $('#mymessage').html(xhr.responseText);
-                        $('#info_warnings').modal('show');
-                    }
-                });
+                if (confirm('¿Seguro que desea parar los cronómetros?'))
+                {
+                    $.ajax({
+                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause') }}",
+                        type: 'POST',
+                        success: function (res) {
+                            console.log(res)
+                        },
+                        error: function (xhr, status, error) {
+                            $('#mymessage').html(xhr.responseText);
+                            $('#info_warnings').modal('show');
+                        }
+                    });
+                }
 
             });
 
@@ -245,18 +248,19 @@
 
                 $("#pause{{ r['id'] }}").click(function (event) {
 
-                    $.ajax({
-                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause', round_id=r['id']) }}",
-                        type: 'POST',
-                        success: function (res) {
-                            console.log(res)
-                        },
-                        error: function(xhr, status, error) {
-                            $('#mymessage').html(xhr.responseText);
-                            $('#info_warnings').modal('show');
-                        }
-                    });
-
+                    if (confirm('¿Seguro que desea parar el cronómetro?')) {
+                        $.ajax({
+                            url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause', round_id=r['id']) }}",
+                            type: 'POST',
+                            success: function (res) {
+                                console.log(res)
+                            },
+                            error: function (xhr, status, error) {
+                                $('#mymessage').html(xhr.responseText);
+                                $('#info_warnings').modal('show');
+                            }
+                        });
+                    }
                 });
 
             {% endfor %}
