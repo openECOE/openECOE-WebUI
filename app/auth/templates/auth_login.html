@@ -1,6 +1,7 @@
 {% extends 'app_base.html' %}
 
 {% block content %}
+    {{util.flashed_messages(dismissible=True)}}
     <div class="container">
         <h1>{{ _('Sign In') }}</h1>
         <div class="row">

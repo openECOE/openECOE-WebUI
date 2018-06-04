@@ -1,5 +1,6 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/utils.html" as util %}
 {% block head %}
     {{ super() }}
     {{ moment.include_jquery(local_js=url_for('static', filename='js/jquery-3.3.1.min.js')) }}
@@ -7,19 +8,32 @@
     {{ moment.locale(auto_detect=True) }}
 {% endblock %}
 
+{% block scripts %}
+    {{ super () }}
+    <script src="{{ url_for('static', filename='js/bootstrap-toggle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.barrating.min.js') }}"></script>
+{% endblock %}
+
 {% block styles %}
-    {{super()}}
+    {{ super() }}
     <link rel="stylesheet"
           href="{{url_for('static', filename='css/custom.css')}}">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/bootstrap-toggle.min.css') }}">
+    <link rel="stylesheet"
+          href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/bars-1to10.css') }}">
 {% endblock %}
 
 {% block navbar %}
-{% include "navbar.html" %}
-{% endblock%}
+    {% include "navbar.html" %}
+{% endblock %}
 
-{%- block content %}
-{{super()}}
-{%- block footer %}
-{% include "footer.html" %}
-{%- endblock footer %}
-{%- endblock content %}
+{%- block body %}
+    {{ super() }}
+    {%- block footer %}
+        {% include "footer.html" %}
+    {%- endblock footer %}
+{%- endblock body %}

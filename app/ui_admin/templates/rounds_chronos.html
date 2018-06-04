@@ -1,5 +1,43 @@
 {% extends "app_base.html" %}
+{% from 'macros/common.html' import ajax_setup %}
+
 {% block content %}
+
+    <!-- modal for warnings to the user -->
+    <div class="modal fade" id="info_warnings" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Información</h4>
+          </div>
+          <div class="modal-body">
+            <p id="mymessage"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="ecoe_config" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Configuración de la ECOE</h4>
+          </div>
+          <div class="modal-body">
+              <p class="text-center"><button type="button" id="format" class="btn btn-default">Ver en formato original</button></p>
+              <p id="config"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     <div class="container">
 
@@ -13,6 +51,8 @@
                 <button id="playall" class="btn btn-primary btn-lg">Continuar todo</button>
             </div>
             </p>
+
+            <p><a href="#ecoe_config" id="view_config" data-toggle="modal">Ver configuración</a></p>
         </div>
 
         <div class="col-xs-12 col-md-1-offset col-md-7">
@@ -40,38 +80,116 @@
 
     <script>
 
+        function getEcoeConfig(jsonFormat=false) {
+
+            var ecoeConfig;
+
+            if (jsonFormat) {
+                ecoeConfig = JSON.stringify({{ configuration|replace('False', '\"false\"')|replace('True', '\"true\"')|safe }}, null, 4);
+            }
+            else {
+                var schedules = "";
+
+                {% for schedule in configuration.schedules %}
+
+                    schedules +=
+                        "<p><ul>" +
+                        "<li><strong>Orden</strong>: {{ schedule.order }}</li>" +
+                        "<li><strong>Nombre</strong>: {{ schedule.name }}</li>" +
+                        "<li><strong>Duración</strong>: {{ schedule.duration }}</li>" +
+                        "<li><strong>Eventos</strong>: ";
+
+                    {% for event in schedule.events %}
+                        schedules +=
+                            "<p><ul>" +
+                            "<li><strong>Instante</strong>: {{ event.t }}</li>" +
+                            "<li><strong>Mensaje</strong>: {{ event.message }}</li>" +
+                            "<li><strong>Cuenta atrás</strong>: {{ event.is_countdown }}</li>" +
+                            "<li><strong>Sonido</strong>: {{ event.sound }}</li>" +
+                            "<li><strong>Ids estaciones destino</strong>: {{ event.stations }}</li>" +
+                            "</ul></p>";
+                    {% endfor %}
+
+                    schedules += "</ul></p>";
+
+                {% endfor %}
+
+                ecoeConfig =
+                    "<strong>Vueltas</strong>: {{ configuration.reruns }}<br>" +
+                    "<strong>Ids de rueda</strong>: {{ configuration.rounds_id }}<br>" +
+                    "<strong>Fases</strong>: " + schedules;
+            }
+
+            return ecoeConfig;
+        }
+
+
         $(document).ready(function () {
+
+            {{ ajax_setup() }}
+
+            var jsonFormat = false;
+
+            $('#view_config').click(function () {
+                $('#config').html("<pre>"+getEcoeConfig(jsonFormat)+"</pre>");
+            });
+
+            $('#format').click(function () {
+                jsonFormat = !jsonFormat;
+
+                $('#config').html("<pre>"+getEcoeConfig(jsonFormat)+"</pre>");
+
+                if (jsonFormat)
+                    $('#format').html('Ver en formato descriptivo');
+                else
+                    $('#format').html('Ver en formato original');
+            });
 
             $("#start").click(function (event) {
 
                 $.ajax({
-                    url: '{{ actions_url['start'] }}',
-
+                    url: "{{ url_for('.start_chronos', id_ecoe=id_ecoe) }}",
+                    type: 'POST',
                     success: function (res) {
                         console.log(res)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#mymessage').html(xhr.responseText);
+                        $('#info_warnings').modal('show');
                     }
                 });
             });
 
             $("#pauseall").click(function (event) {
 
-                $.ajax({
-                    url: '{{ actions_url['pause'] }}',
-
-                    success: function (res) {
-                        console.log(res)
-                    }
-                });
+                if (confirm('¿Seguro que desea parar los cronómetros?'))
+                {
+                    $.ajax({
+                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause') }}",
+                        type: 'POST',
+                        success: function (res) {
+                            console.log(res)
+                        },
+                        error: function (xhr, status, error) {
+                            $('#mymessage').html(xhr.responseText);
+                            $('#info_warnings').modal('show');
+                        }
+                    });
+                }
 
             });
 
             $("#playall").click(function (event) {
 
                 $.ajax({
-                    url: '{{ actions_url['play'] }}',
-
+                    url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='play') }}",
+                    type: 'POST',
                     success: function (res) {
                         console.log(res)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#mymessage').html(xhr.responseText);
+                        $('#info_warnings').modal('show');
                     }
                 });
             });
@@ -91,7 +209,7 @@
 
                 socket{{ r['id'] }}.on('init_stage', function (msg) {
                     $('#clock{{ r['id'] }}').fadeOut('fast').fadeIn('fast', function () {
-                        $('#vuelta{{ r['id'] }}').text(msg.num_rerun);
+                        $('#vuelta{{ r['id'] }}').text(msg.num_rerun + "/" + msg.total_reruns);
                     });
                 });
 
@@ -101,7 +219,8 @@
                 });
 
                 socket{{ r['id'] }}.on('tic_tac', function (msg) {
-                    $('#clock{{ r['id'] }}').text(msg.stage + " " + msg.minutes + ":" + msg.seconds);
+                    $('#clock{{ r['id'] }}').text(msg.stage.name + " " + msg.minutes + ":" + msg.seconds);
+                    $('#vuelta{{ r['id'] }}').text(msg.num_rerun + "/" + msg.total_reruns);
 
                     if (msg.stopped == 'S') {
                         $('#clock{{ r['id'] }}').css("color", "red");
@@ -114,10 +233,14 @@
                 $("#play{{ r['id'] }}").click(function (event) {
 
                     $.ajax({
-                        url: '{{ actions_url['play'] }}/{{ r['id'] }}',
-
+                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='play', round_id=r['id']) }}",
+                        type: 'POST',
                         success: function (res) {
-                            console.log(res);
+                            console.log(res)
+                        },
+                        error: function(xhr, status, error) {
+                            $('#mymessage').html(xhr.responseText);
+                            $('#info_warnings').modal('show');
                         }
                     });
 
@@ -125,14 +248,19 @@
 
                 $("#pause{{ r['id'] }}").click(function (event) {
 
-                    $.ajax({
-                        url: '{{ actions_url['pause'] }}/{{ r['id'] }}',
-
-                        success: function (res) {
-                            console.log(res)
-                        }
-                    });
-
+                    if (confirm('¿Seguro que desea parar el cronómetro?')) {
+                        $.ajax({
+                            url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause', round_id=r['id']) }}",
+                            type: 'POST',
+                            success: function (res) {
+                                console.log(res)
+                            },
+                            error: function (xhr, status, error) {
+                                $('#mymessage').html(xhr.responseText);
+                                $('#info_warnings').modal('show');
+                            }
+                        });
+                    }
                 });
 
             {% endfor %}

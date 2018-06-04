@@ -5,32 +5,13 @@ from app.ui_admin.forms import LoginForm, AddAreaForm, AddStationForm, AddStuden
 from potion_client.exceptions import ItemNotFound
 from flask import request
 
+
 @bp.route('/', methods=['GET'])
 @bp.route('/index/', methods=['GET'])
 @login_required
 def home():
     ecoes = current_user.api_client.Ecoe.instances()
     return render_template('index.html', ecoes=ecoes)
-
-
-@bp.route('/ecoe/<int:id_ecoe>/rounds')
-@login_required
-def roundsChronos(id_ecoe):
-    ecoe = current_user.api_client.Ecoe(id_ecoe)
-
-    rounds = [
-        {'id': r.id, 'chrono_route': current_app.config.get('CHRONO_ROUTE') + "/round%d" % r.id}
-        for r in ecoe.rounds
-    ]
-
-    # TODO: Call chronos API from inside app
-    actions_chrono_url = {
-        'start': current_app.config.get('CHRONO_ROUTE') + "/start",
-        'play': current_app.config.get('CHRONO_ROUTE') + "/play",
-        'pause': current_app.config.get('CHRONO_ROUTE') + "/pause"
-    }
-
-    return render_template('rounds_chronos.html', id_ecoe=id_ecoe, rounds=rounds, actions_url=actions_chrono_url)
 
 
 @bp.route('/ecoe/', methods=['GET'])

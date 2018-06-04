@@ -1,0 +1,19 @@
+{% extends "app_base.html" %}
+
+{% block content %}
+
+    {{ util.flashed_messages(dismissible=True) }}
+
+    <div class="container">
+
+        <div class="row text-center">
+            <h2>Carga de fichero de preguntas</h2>
+
+            <div class="col-2 offset-5">
+                {{ wtf.quick_form(form) }}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
