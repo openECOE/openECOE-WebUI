@@ -23,7 +23,7 @@ def _load_chronos(ecoe):
 @bp.route('/ecoe/<int:id_ecoe>/rounds')
 @login_required
 def roundsChronos(id_ecoe):
-    ecoe = current_user.api_client.Ecoe(id_ecoe)
+    ecoe = current_user.api_client.Ecoe.fetch(id_ecoe)
 
     rounds = [
         {'id': r.id, 'chrono_route': current_app.config.get('CHRONO_ROUTE') + "/round%d" % r.id}
