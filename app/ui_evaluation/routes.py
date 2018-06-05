@@ -30,12 +30,16 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
 
     now = datetime.now(pytz.utc)
 
+    allow_back = True
+
     if id_station != None:
+        allow_back = False
         stations.append(current_user.api_client.Station(id_station))
     else:
         stations = current_user.api_client.Station.instances(where={"ecoe": ecoe}, sort={"order": False})
 
     if id_round != None:
+        allow_back = False
         rounds.append(current_user.api_client.Round(id_round))
     else:
         rounds = current_user.api_client.Round.instances(where={"ecoe": ecoe})
@@ -44,7 +48,7 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
 
     shifts = filter(lambda shift: len(shift.planners) > 0, shifts)
 
-    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts)
+    return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts, allow_back=allow_back)
 
 
 @bp.route('/ecoe/<int:id_ecoe>/station/<int:id_station>/shift/<int:id_shift>/round/<int:id_round>', methods=['GET'])

@@ -111,9 +111,9 @@
                 progress_bar.css({"width": percentComplete + "%", "background-color": stage_color[color_name]});
                 stage_label.html(moment((msg.stage.duration - msg.t) * 1000).format("mm:ss") + " " + msg.stage.name + info_msg).css({"background-color": stage_color[color_name]});
 
-                {% if msg.stage.events %}
+                if (msg.stage.events){
                     $(".chrono > .events").html(render_events(msg.stage.events, msg.stage.duration, msg.t, {{ station_id }}));
-                {% endif %}
+                }
 
                 {% if config_chrono %}
                     if (msg.stage.order == 0 || msg.stopped == "S" || reload) {
