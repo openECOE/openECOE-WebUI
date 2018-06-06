@@ -196,7 +196,7 @@
 
             {% for r in rounds %}
 
-                var socket{{ r['id'] }} = io.connect('{{ r['chrono_route'] }}');
+                var socket{{ r['id'] }} = io.connect('{{ r['chrono_route'] }}', { reconnectionDelayMax : 1000 });
 
                 socket{{ r['id'] }}.on('connect', function () {
                     console.log('Conectado para monitorizacion de rueda {{ r['id'] }}')

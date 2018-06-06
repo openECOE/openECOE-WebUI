@@ -68,7 +68,7 @@
 
             /*** SOCKETS ***/
 
-            var socket = io.connect('{{ chrono_route }}');
+            var socket = io.connect('{{ chrono_route }}', { reconnectionDelayMax : 1000 });
 
             socket.on('connect', function () {
                 console.log('Estación {{ station_id }}: conectada a rueda {{ id_round }}')
