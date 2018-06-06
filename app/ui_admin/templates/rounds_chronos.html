@@ -57,12 +57,12 @@
 
         <div class="col-xs-12 col-md-1-offset col-md-7">
         {% for r in rounds %}
-                <h2>Rueda {{ r['id'] }} (vuelta <span id="vuelta{{ r['id'] }}"></span>)</h2>
-                <h2 id="clock{{ r['id'] }}">--:--</h2>
+                <h2>{{ r.description }} (vuelta <span id="vuelta{{ r.id }}"></span>)</h2>
+                <h2 id="clock{{ r.id }}">--:--</h2>
                 <div class="btn-group">
-                    <button type="button" id="pause{{ r['id'] }}" class="btn btn-warning">Pausar
+                    <button type="button" id="pause{{ r.id }}" class="btn btn-warning">Pausar
                     </button>
-                    <button type="button" id="play{{ r['id'] }}" class="btn btn-primary">Continuar
+                    <button type="button" id="play{{ r.id }}" class="btn btn-primary">Continuar
                     </button>
                 </div>
         {% endfor %}
@@ -196,20 +196,20 @@
 
             {% for r in rounds %}
 
-                var socket{{ r['id'] }} = io.connect('{{ r['chrono_route'] }}', { reconnectionDelayMax : 1000 });
+                var socket{{ r.id }} = io.connect('{{ chrono_route }}/round{{ r.id }}', { reconnectionDelayMax : 1000 });
 
-                socket{{ r['id'] }}.on('connect', function () {
-                    console.log('Conectado para monitorizacion de rueda {{ r['id'] }}')
+                socket{{ r.id }}.on('connect', function () {
+                    console.log('Conectado para monitorizacion de {{ r.description }}')
                 });
 
-                socket{{ r['id'] }}.on('end_round', function (msg) {
-                    $('#clock{{ r['id'] }}').css("color", "green");
+                socket{{ r.id }}.on('end_round', function (msg) {
+                    $('#clock{{ r.id }}').css("color", "green");
                     console.log(msg.data);
                 });
 
-                socket{{ r['id'] }}.on('init_stage', function (msg) {
-                    $('#clock{{ r['id'] }}').fadeOut('fast').fadeIn('fast', function () {
-                        $('#vuelta{{ r['id'] }}').text(msg.num_rerun + "/" + msg.total_reruns);
+                socket{{ r.id }}.on('init_stage', function (msg) {
+                    $('#clock{{ r.id }}').fadeOut('fast').fadeIn('fast', function () {
+                        $('#vuelta{{ r.id }}').text(msg.num_rerun + "/" + msg.total_reruns);
                     });
                 });
 
@@ -218,22 +218,22 @@
                     $('#clock{{ r.id }}').text("EVALUACIÓN ABORTADA");
                 });
 
-                socket{{ r['id'] }}.on('tic_tac', function (msg) {
-                    $('#clock{{ r['id'] }}').text(msg.stage.name + " " + msg.minutes + ":" + msg.seconds);
-                    $('#vuelta{{ r['id'] }}').text(msg.num_rerun + "/" + msg.total_reruns);
+                socket{{ r.id }}.on('tic_tac', function (msg) {
+                    $('#clock{{ r.id }}').text(msg.stage.name + " " + msg.minutes + ":" + msg.seconds);
+                    $('#vuelta{{ r.id }}').text(msg.num_rerun + "/" + msg.total_reruns);
 
                     if (msg.stopped == 'S') {
-                        $('#clock{{ r['id'] }}').css("color", "red");
+                        $('#clock{{ r.id }}').css("color", "red");
                         console.log("[" + msg.minutes + ":" + msg.seconds + "] Crono parado");
                     }
                     else
-                        $('#clock{{ r['id'] }}').css("color", "black");
+                        $('#clock{{ r.id }}').css("color", "black");
                 });
 
-                $("#play{{ r['id'] }}").click(function (event) {
+                $("#play{{ r.id }}").click(function (event) {
 
                     $.ajax({
-                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='play', round_id=r['id']) }}",
+                        url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='play', round_id=r.id) }}",
                         type: 'POST',
                         success: function (res) {
                             console.log(res)
@@ -246,11 +246,11 @@
 
                 });
 
-                $("#pause{{ r['id'] }}").click(function (event) {
+                $("#pause{{ r.id }}").click(function (event) {
 
                     if (confirm('¿Seguro que desea parar el cronómetro?')) {
                         $.ajax({
-                            url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause', round_id=r['id']) }}",
+                            url: "{{ url_for('.manage_chronos', id_ecoe=id_ecoe, action='pause', round_id=r.id) }}",
                             type: 'POST',
                             success: function (res) {
                                 console.log(res)
