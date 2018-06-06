@@ -83,8 +83,8 @@
                     <tbody>
                     {% for question in qblock.questions|sort(attribute='order') %}
                         <tr>
-                            <td class="hidden-xs">{{ question.order }}</td>
-                            <td class="col-xs-12 col-sm-7 col-md-8 pull-left-xs text-right-xs">{{ question.description }}</td>
+                            <td class="hidden-xs text-larger">{{ question.order }}</td>
+                            <td class="col-xs-12 col-sm-7 col-md-8 pull-left-xs text-right-xs text-larger">{{ question.description }}</td>
                             <td class="col-xs-12 col-sm-4 col-md-3 pull-left-xs text-right-xs">
                                 <span class="col-xs-12">{{ question.reference }}</span>
                                 <div class="col-xs-12 pull-right-xs">

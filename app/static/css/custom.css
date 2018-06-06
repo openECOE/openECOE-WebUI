@@ -204,6 +204,10 @@
     }
 }
 
+.text-larger{
+    font-size: larger;
+}
+
 .chrono .events{
     position: relative;
     width: 100%;
