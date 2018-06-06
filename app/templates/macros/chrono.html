@@ -10,7 +10,7 @@
             <span class="label label-info stage">00:00</span>
         </h2>
         <h3 class="labels text-left pull-right">
-            <span class="label label-warning countdown">00:00</span>
+            <span class="label label-warning countdown hidden">00:00</span>
         </h3>
     </div>
     <div class="chrono col-xs-12">
@@ -34,7 +34,7 @@
         <div class="chrono col-xs-12">
             <div class="info">
                 <h2><span class="label label-primary">Vueltas realizadas <span class="reruns">0</span> / {{ config_chrono.reruns }}</span></h2>
-                <h2><span class="label label-primary">Hora estimada finalización <span class="finish_time"></span></h2>
+                <h2><span class="label label-primary">Hora estimada finalización <span class="finish_time"></span></span></h2>
                 {{ config_chrono.total_time }}
             </div>
         </div>
@@ -63,6 +63,8 @@
                 'Error': '#d9534f',
                 'Warning': '#f0ad4e'
             };
+
+            let reload = true;
 
             /*** SOCKETS ***/
 
@@ -112,7 +114,8 @@
                 $(".chrono > .events").html(render_events(msg.stage.events, msg.stage.duration, msg.t, {{ station_id }}));
 
                 {% if config_chrono %}
-                    if (msg.stage.order == 0 || msg.stopped == "S") {
+                    if (msg.stage.order == 0 || msg.stopped == "S" || reload) {
+                        reload = false;
                         $(".chrono > .info .reruns").html(msg.num_rerun);
                         remaining_time = (({{ config_chrono.reruns }} - msg.num_rerun) + 1) * {{ config_chrono.round_time }}
 
