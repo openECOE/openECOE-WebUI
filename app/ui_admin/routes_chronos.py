@@ -25,12 +25,7 @@ def _load_chronos(ecoe):
 def roundsChronos(id_ecoe):
     ecoe = current_user.api_client.Ecoe.fetch(id_ecoe)
 
-    rounds = [
-        {'id': r.id, 'chrono_route': current_app.config.get('CHRONO_ROUTE') + "/round%d" % r.id}
-        for r in ecoe.rounds
-    ]
-
-    return render_template('rounds_chronos.html', id_ecoe=id_ecoe, rounds=rounds, configuration=ecoe.read_configuration())
+    return render_template('rounds_chronos.html', id_ecoe=id_ecoe, rounds=ecoe.rounds, configuration=ecoe.read_configuration(), chrono_route=current_app.config.get('CHRONO_ROUTE'))
 
 
 @bp.route('/ecoe/<int:id_ecoe>/start', methods=['POST'])

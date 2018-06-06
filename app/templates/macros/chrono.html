@@ -6,12 +6,12 @@
 
 {% macro chrono_progress(config_chrono=None) %}
     <div class="chrono col-xs-12">
-        <h2 class="labels text-right pull-left">
-            <span class="label label-info stage">00:00</span>
-        </h2>
         <h3 class="labels text-left pull-right">
             <span class="label label-warning countdown hidden">00:00</span>
         </h3>
+        <h2 class="labels text-right pull-left">
+            <span class="label label-info stage">00:00</span>
+        </h2>
     </div>
     <div class="chrono col-xs-12">
         <div class="events">
@@ -111,7 +111,9 @@
                 progress_bar.css({"width": percentComplete + "%", "background-color": stage_color[color_name]});
                 stage_label.html(moment((msg.stage.duration - msg.t) * 1000).format("mm:ss") + " " + msg.stage.name + info_msg).css({"background-color": stage_color[color_name]});
 
-                $(".chrono > .events").html(render_events(msg.stage.events, msg.stage.duration, msg.t, {{ station_id }}));
+                if (msg.stage.events){
+                    $(".chrono > .events").html(render_events(msg.stage.events, msg.stage.duration, msg.t, {{ station_id }}));
+                }
 
                 {% if config_chrono %}
                     if (msg.stage.order == 0 || msg.stopped == "S" || reload) {

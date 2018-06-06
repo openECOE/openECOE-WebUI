@@ -2,7 +2,7 @@
 {% block content %}
     <div class="container">
         <h2>
-            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) }}" role="link">
+            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id) if allow_back }}" role="link">
                 {{ ecoe.name }}
             </a>
         </h2>
@@ -20,22 +20,24 @@
                 {% for round in rounds %}
                     <div class="row">
                         <h3 class="lead">
-                            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id) }}"
+                            <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id) if allow_back }}"
                                role="link">
                                 {{ round.description }}
                             </a>
-                            <a class="btn btn-info btn-lg"
-                               href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=round.id) }}"
-                               target="_blank"
-                               role="button">
-                                Estación exterior
-                            </a>
+                            {% if allow_back %}
+                                <a class="btn btn-info btn-lg"
+                                   href="{{ url_for('.outside_station', ecoe_id=ecoe.id, round_id=round.id) }}"
+                                   target="_blank"
+                                   role="button">
+                                    Estación exterior
+                                </a>
+                            {% endif %}
                         </h3>
 
                         {% for station in stations %}
                             <div class="row">
                                 <h4 class="lead">
-                                    <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id, id_station=station.id) }}">
+                                    <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id, id_station=station.id) if allow_back }}">
                                         {{ station.order }} - {{ station.name }}
                                     </a>
                                 </h4>
