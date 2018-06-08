@@ -1,4 +1,5 @@
 import unittest
+from tests import BaseTestCase
 from app import create_app
 from config import Config
 from ui_evaluation.tests import ApiClient
@@ -14,7 +15,7 @@ class TestConfig(Config):
     API_AUTH = True
 
 
-class UserModelCase(unittest.TestCase):
+class UserModelCase(unittest.TestCase, BaseTestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         self.test_client_class = ApiClient
@@ -26,26 +27,253 @@ class UserModelCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_api_user(self):
+        login = self.client.get
         response = self.client.post('/auth/login', data={'email': 'fernando', 'password': 'fernando'})
         self.assert200(response)
 
+    def test_ecoe(self):
+        ecoe = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe")
+        self.assert200(ecoe)
+
     def test_evaladmin(self):
-        response = uiroutes.evaladmin(1, 1, 1)
-        self.assert200(response)
+        # test ecoe
+            # assert200
+            ecoe = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe/1")
+            self.assert200(ecoe)
+            ecoe = uiroutes.evaladmin(1)
+            self.assert200(ecoe)
 
-        response = uiroutes.evaladmin(2343)
-        self.assert404(response)
+            # assert404
+            ecoe = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe/500000000")
+            self.assert404(ecoe)
+            ecoe = uiroutes.evaladmin(500000000)
+            self.assert404(ecoe)
 
-        response = uiroutes.evaladmin(1, 2343)
-        self.assert404(response)
+        # test round
+            # assert200
+            round = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/round/1')
+            self.assert200(round)
+            round = uiroutes.evaladmin(1, 1)
+            self.assert200(round)
 
-        response = uiroutes.evaladmin(1, 1, 2343)
-        self.assert404(response)
+            round = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/round?where={"ecoe":1}')
+            self.assert200(round)
+            round = uiroutes.evaladmin(1, 1)
+            self.assert200(round)
+
+            # assert404
+            round = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/round/500000')
+            self.assert404(round)
+            round = uiroutes.evaladmin(1, 500000)
+            self.assert404(round)
+
+            station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station?where={"ecoe":500000}')
+            self.assert404(station)
+            station = uiroutes.evaladmin(1, 500000)
+            self.assert404(station)
+
+        # test station
+            # assert200
+            station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station/1')
+            self.assert200(station)
+            station = uiroutes.evaladmin(1, 1)
+            self.assert200(station)
+
+            station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station?where={"ecoe":1}')
+            self.assert200(station)
+            station = uiroutes.evaladmin(1, 1)
+            self.assert200(station)
+
+            # assert404
+            station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station/500000')
+            self.assert404(station)
+            station = uiroutes.evaladmin(1, 500000)
+            self.assert404(station)
+
+            station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station?where={"ecoe":500000}')
+            self.assert404(station)
+            station = uiroutes.evaladmin(1, 500000)
+            self.assert404(station)
+
+        # test shifts
+            # assert200
+            shift = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/shift?where={"ecoe":1}')
+            self.assert200(shift)
+            shift = uiroutes.evaladmin(1, 1)
+            self.assert200(shift)
+
+            # assert404
+            shift = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/shift?where={"ecoe":500000}')
+            self.assert404(shift)
+            shift = uiroutes.evaladmin(1, 500000)
+            self.assert404(shift)
+
+    def test_exam(self):
+        # test ecoe
+            # assert200
+            ecoe = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe/1")
+            self.assert200(ecoe)
+            ecoe = uiroutes.evaladmin(1)
+            self.assert200(ecoe)
+
+            # assert404
+            ecoe = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe/500000000")
+            self.assert404(ecoe)
+            ecoe = uiroutes.evaladmin(500000000)
+            self.assert404(ecoe)
+
+        # test actual_station
+            # assert200
+            actual_station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station/1')
+            self.assert200(actual_station)
+            actual_station = uiroutes.evaladmin(1)
+            self.assert200(actual_station)
+
+            # assert404
+            actual_station = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/station/500000')
+            self.assert404(actual_station)
+            actual_station = uiroutes.evaladmin(1, 500000)
+            self.assert404(actual_station)
+
+
+        # test planner
+            # assert200
+            planner = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/planner?where={"shift":1,"round":1}')
+            self.assert200(planner)
+            planner = uiroutes.evaladmin(1, 1, 1)
+            self.assert200(planner)
+
+            # assert404
+            planner = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/planner?where={"shift":500000,"round":1}')
+            self.assert404(planner)
+            planner = uiroutes.evaladmin(1, 500000, 1)
+            self.assert404(planner)
+
+            # assert404
+            planner = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/planner?where={"shift":1,"round":500000}')
+            self.assert404(planner)
+            planner = uiroutes.evaladmin(1, 1, 500000)
+            self.assert404(planner)
+
+
+        # test qblocks
+            # assert200
+            qblocks = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/qblock?where={"station":1')
+            self.assert200(qblocks)
+            qblocks = uiroutes.evaladmin(1, 1)
+            self.assert200(qblocks)
+
+            # assert404
+            qblocks = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/qblock?where={"station":500000')
+            self.assert404(qblocks)
+            qblocks = uiroutes.evaladmin(1, 500000)
+            self.assert404(qblocks)
+
+        # test students;
+            # assert200
+            students = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/students?where={"planner":1}')
+            self.assert200(students)
+            qblocks = uiroutes.evaladmin(1, 1)
+            self.assert200(qblocks)
+
+             # assert404
+            students = self.client.get('http://dev.api.openecoe.umh.es:5000/api/ecoe/1/students?where={"planner":500000}')
+            self.assert404(students)
+            students = uiroutes.evaladmin(1, 500000)
+            self.assert404(students)
+
+    def test_outside_station(self):
+        # test answer
+            # assert200
+            answer = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe/1")
+            self.assert200(answer)
+            answer = uiroutes.evaladmin(1)
+            self.assert200(answer)
+
+            # assert404
+            answer = self.client.get("http://dev.api.openecoe.umh.es:5000/api/ecoe/2015")
+            self.assert404(answer)
+            answer = uiroutes.evaladmin(2015)
+            self.assert404(answer)
+
+        # test round
+            # assert200
+            round = self.client.get("http://dev.api.openecoe.umh.es:5000/api/round/1")
+            self.assert200(round)
+            round = uiroutes.evaladmin(1)
+            self.assert404(round)
+
+            # assert404
+            round = self.client.get("http://dev.api.openecoe.umh.es:5000/api/round/2015")
+            self.assert404(round)
+            round = uiroutes.evaladmin(2015)
+            self.assert404(round)
+
+    def test_send_answer(self):
+        # test answer
+            # assert200
+            answer = self.client.get("http://dev.api.openecoe.umh.es:5000/api/option/1")
+            self.assert200(answer)
+            answer = uiroutes.evaladmin(1)
+            self.assert200(answer)
+
+            # assert404
+            answer = self.client.get("http://dev.api.openecoe.umh.es:5000/api/option/2015")
+            self.assert404(answer)
+            answer = uiroutes.evaladmin(2015)
+            self.assert200(answer)
+
+        # test student
+            # assert200
+            student = self.client.get("http://dev.api.openecoe.umh.es:5000/api/student/1")
+            self.assert200(student)
+            student = uiroutes.evaladmin(1)
+            self.assert200(student)
+
+            if self.assert200(student):
+                answers = self.client.post("http://dev.api.openecoe.umh.es:5000/api/student/1/answers", data=1)
+                self.assert200(answers)
+
+                answers = self.client.post("http://dev.api.openecoe.umh.es:5000/api/student/1/answers", data=50000)
+                self.assert404(answers)
+
+            # assert404
+            student = self.client.get("http://dev.api.openecoe.umh.es:5000/api/student/2015")
+            self.assert404(student)
+            student = uiroutes.evaladmin(2015)
+            self.assert404(student)
+
+    def test_delete_answer(self):
+        #test delete_answer
+            # assert204
+            answer = self.client.delete("http://dev.api.openecoe.umh.es:5000/api/option/1")
+            self.assert204(answer)
+            answer = uiroutes.evaladmin(1)
+            self.assert204(answer)
+
+            # assert404
+            answer = self.client.delete("http://dev.api.openecoe.umh.es:5000/api/option/2015")
+            self.assert404(answer)
+            answer = uiroutes.evaladmin(2015)
+            self.assert204(answer)
+
+        #test student
+            # assert204
+            student = self.client.delete("http://dev.api.openecoe.umh.es:5000/api/student/1")
+            self.assert204(student)
+            student = uiroutes.evaladmin(1)
+            self.assert204(student)
+
+            # assert404
+            student = self.client.delete("http://dev.api.openecoe.umh.es:5000/api/student/2015")
+            self.assert404(student)
+            student = uiroutes.evaladmin(2015)
+            self.assert404(student)
+
+
+
 
     # def test_exam(self):
-
-
-
 
 # from flask_potion.routes import Route, ItemRoute
 # from flask_potion import Api, fields
