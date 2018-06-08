@@ -1,8 +1,6 @@
-import os
 from flask import Flask, request, current_app
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
-from potion_client import Client
 from flask_babel import Babel
 from flask_wtf import CSRFProtect
 from flask_moment import Moment

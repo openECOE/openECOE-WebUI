@@ -4,15 +4,10 @@ from flask_login import login_user, logout_user, current_user, UserMixin, Anonym
 from flask_babel import _
 from app.auth import bp
 from app.auth.forms import LoginForm
-from app import Client, login_manager, current_app
+from app import login_manager, current_app
 import requests
 from requests.auth import HTTPBasicAuth
-from requests import exceptions
-from potion_client.auth import HTTPBearerAuth
 from app.api_client import create_api, delete_api
-from datetime import datetime
-import sys
-
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():

@@ -3,7 +3,7 @@
 {% import "bootstrap/utils.html" as util %}
 {% block head %}
     {{ super() }}
-    {{ moment.include_jquery(local_js=url_for('static', filename='js/jquery-3.3.1.min.js')) }}
+    {{ moment.include_jquery(local_js=url_for('static', filename='bootstrap/jquery.min.js')) }}
     {{ moment.include_moment(local_js=url_for('static', filename='js/moment.min.js')) }}
     {{ moment.locale(auto_detect=True) }}
 {% endblock %}
@@ -17,14 +17,13 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet"
-          href="{{url_for('static', filename='css/custom.css')}}">
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    <link rel="stylesheet"
           href="{{ url_for('static', filename='css/bootstrap-toggle.min.css') }}">
     <link rel="stylesheet"
-          href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+          href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/bars-1to10.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/custom.css') }}">
 {% endblock %}
 
 {% block navbar %}

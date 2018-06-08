@@ -35,7 +35,7 @@
                         </h3>
 
                         {% for station in stations %}
-                            <div class="row">
+                            <div class="col-xs-12">
                                 <h4 class="lead">
                                     <a href="{{ url_for('.evaladmin', id_ecoe=ecoe.id, id_round=round.id, id_station=station.id) if allow_back }}">
                                         {{ station.order }} - {{ station.name }}
