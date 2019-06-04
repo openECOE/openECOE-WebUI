@@ -100,6 +100,9 @@ def exam(id_ecoe, id_station, id_shift, id_round, order=1):
                 options_set = set({option.id: option for option in question.options})
                 answers_set = set({answer.id: answer for answer in student.answers})
                 question.answers_ids = list(answers_set.intersection(options_set))
+
+                question.description = Markup(question.description)
+                question.reference = Markup(question.reference)
     except ItemNotFound:
         student = None
 
