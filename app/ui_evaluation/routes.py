@@ -46,7 +46,7 @@ def evaladmin(id_ecoe, id_round=None, id_station=None):
 
     shifts = current_user.api_client.Shift.instances(where={"ecoe": ecoe})
 
-    shifts = filter(lambda shift: len(shift.planners) > 0, shifts)
+    shifts = filter(lambda shift: shift.planners()._total_count > 0, shifts)
 
     return render_template('eval_admin.html', ecoe=ecoe, stations=stations, rounds=rounds, now=now, shifts=shifts, allow_back=allow_back)
 
@@ -77,7 +77,8 @@ def exam(id_ecoe, id_station, id_shift, id_round, order=1):
 
     qblocks = current_user.api_client.Qblock.instances(where={"station": actual_station})
 
-    stations_count = len(ecoe.stations)
+    # stations_count = len(ecoe.stations)
+    stations_count = current_user.api_client.Station.instances(where={"ecoe": ecoe})._total_count
 
     order_student = get_stu_order(order, actual_station.order, stations_count)
 

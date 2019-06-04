@@ -93,51 +93,49 @@ def _load_csv(station):
 
     for row in csv_input:
 
-        # 1. If qblock does not exist, must be created (general o specific)
-        qblock_name = row.get('Bloque', 'General')
+        is_question = row['Opcion'] in (None, '')
 
-        try:
-            qblock = current_user.api_client.Qblock.first(where={"station": station, "name": qblock_name})
-        except ItemNotFound:
-            qblock = current_user.api_client.Qblock()
-            qblock.name = qblock_name
-            qblock.order = 0
-            qblock.station = station
-            qblock.save()
+        if is_question:
 
-        # 2. Save questions
-        question = current_user.api_client.Question()
-        question.reference = row['Referencia'].strip()
-        question.description = row['Enunciado'].strip()
+            # If qblock does not exist, must be created (general o specific)
+            qblock_name = row.get('Bloque', 'General')
 
-        try:
-            area = current_user.api_client.Area.first(where={"code": row['AC'], "ecoe": station.ecoe})
+            try:
+                qblock = current_user.api_client.Qblock.first(where={"station": station, "name": qblock_name})
+            except ItemNotFound:
+                qblock = current_user.api_client.Qblock()
+                qblock.name = qblock_name
+                qblock.order = 0
+                qblock.station = station
+                qblock.save()
 
-            question.area = area
-        except HTTPError:
-            raise Exception('Área desconocida para la pregunta %d' % int(row['Orden']))
+            # Save questions
+            question = current_user.api_client.Question()
+            question.reference = row['Referencia'].strip()
+            question.description = row['Enunciado'].strip()
 
-        question.question_type = 'CH'
-        question.order = int(row['Orden'])
-        question.save()
+            try:
+                area = current_user.api_client.Area.first(where={"code": row['AC'], "ecoe": station.ecoe})
 
-        # 3. Save options
-        option_yes = current_user.api_client.Option()
-        option_yes.points = int(row['Puntos'])
-        option_yes.label = 'Sí'
-        option_yes.order = 0
-        option_yes.question = question
-        option_yes.save()
+                question.area = area
+            except HTTPError:
+                raise Exception('Área desconocida para la pregunta %d' % int(row['Orden']))
 
-        option_no = current_user.api_client.Option()
-        option_no.points = 0
-        option_no.label = 'No'
-        option_no.order = 1
-        option_no.question = question
-        option_no.save()
+            question.question_type = row['Tipo']
+            question.order = int(row['Id'])
+            question.save()
 
-        # 4. Many to many relationships
-        qblock.add_questions(question)
+            # Many to many relationships
+            qblock.add_questions(question)
+
+        else:
+
+            option = current_user.api_client.Option()
+            option.points = float(row['Puntos'].replace(',', '.'))
+            option.label = row['Referencia'].strip()
+            option.order = int(row['Opcion'])
+            option.question = question
+            option.save()
 
 
 @bp.route('/station/<int:id_station>/load_questions', methods=['POST'])
