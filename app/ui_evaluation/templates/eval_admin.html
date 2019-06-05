@@ -44,11 +44,13 @@
                                 {% for shift in day_group %}
                                     <div class="col col-xs-12 col-sm-4 col-md-3">
                                         <p>
-                                            <a class="btn btn-lg {% if shift.time_start > now %}btn-warning{% else %}btn-success{% endif %}"
+                                            <a class="eval-btn btn btn-lg {% if shift.time_start > now %}btn-warning{% else %}btn-success{% endif %}"
                                                role="button"
+                                               data-refresh="60000"
+                                               data-timestamp="{{ shift.time_start }}"
                                                href="{{ url_for('.exam', id_ecoe=ecoe.id, id_station=station.id, id_shift=shift.id, id_round=round.id) }}">
                                                 <span class="col col-xs-12">{{ shift.shift_code }} - {{ moment(shift.time_start).format('HH:mm') }}</span>
-                                                <span class="col-xs-12 small">{{ moment(shift.time_start).fromTime(now) }}</span>
+                                                <span class="col-xs-12 small">{{ moment(shift.time_start).fromNow(refresh=True) }}</span>
                                             </a>
 
                                         </p>
@@ -62,4 +64,28 @@
 
         {% endfor %}
     </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+    function after_moment_render(elem) {
+        $(elem).removeClass('eval-btn').show();
+        if (moment().isAfter($(elem).data('timestamp'))) {
+            $(elem).removeClass('btn-warning').addClass('btn-success').show();
+        } else {
+            $(elem).removeClass('btn-success').addClass('btn-warning').show();
+        }
+    }
+
+    function after_moment_render_all() {
+        $('.eval-btn').each(function() {
+            after_moment_render(this);
+            if ($(this).data('refresh')) {
+                (function(elem, interval) { setInterval(function() { after_moment_render(elem) }, interval); })(this, $(this).data('refresh'));
+            }
+        })
+    }
+    $(document).ready(function() {
+        after_moment_render_all();
+    });
+    </script>
 {% endblock %}
